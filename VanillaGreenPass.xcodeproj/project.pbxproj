@@ -41,7 +41,7 @@
 		525688A927889F5200D1FAE5 = {
 			isa = PBXGroup;
 			children = (
-				525688B427889F5200D1FAE5 /* VanillaGreenPass */,
+				525688B427889F5200D1FAE5 /* src */,
 				525688B327889F5200D1FAE5 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -54,12 +54,12 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		525688B427889F5200D1FAE5 /* VanillaGreenPass */ = {
+		525688B427889F5200D1FAE5 /* src */ = {
 			isa = PBXGroup;
 			children = (
 				525688B527889F5200D1FAE5 /* main.c */,
 			);
-			path = VanillaGreenPass;
+			path = src;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
