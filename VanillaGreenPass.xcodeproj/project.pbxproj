@@ -11,6 +11,8 @@
 		52B6726F2788BE06000E28FE /* makefile in Sources */ = {isa = PBXBuildFile; fileRef = 52B6726E2788BE06000E28FE /* makefile */; };
 		52B672732788BE66000E28FE /* UsageUtility.c in Sources */ = {isa = PBXBuildFile; fileRef = 52B672722788BE66000E28FE /* UsageUtility.c */; };
 		52B672752788BEE2000E28FE /* NetWrapper.c in Sources */ = {isa = PBXBuildFile; fileRef = 52B672742788BEE2000E28FE /* NetWrapper.c */; };
+		52B672782788CD54000E28FE /* clientCitizen.c in Sources */ = {isa = PBXBuildFile; fileRef = 52B672772788CD54000E28FE /* clientCitizen.c */; };
+		52B6727B2788D31A000E28FE /* GreenPassUtility.c in Sources */ = {isa = PBXBuildFile; fileRef = 52B6727A2788D31A000E28FE /* GreenPassUtility.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -33,6 +35,10 @@
 		52B672712788BE15000E28FE /* NetWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NetWrapper.h; sourceTree = "<group>"; };
 		52B672722788BE66000E28FE /* UsageUtility.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = UsageUtility.c; sourceTree = "<group>"; };
 		52B672742788BEE2000E28FE /* NetWrapper.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = NetWrapper.c; sourceTree = "<group>"; };
+		52B672762788CD54000E28FE /* clientCitizen.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = clientCitizen.h; sourceTree = "<group>"; };
+		52B672772788CD54000E28FE /* clientCitizen.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = clientCitizen.c; sourceTree = "<group>"; };
+		52B672792788D31A000E28FE /* GreenPassUtility.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GreenPassUtility.h; sourceTree = "<group>"; };
+		52B6727A2788D31A000E28FE /* GreenPassUtility.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = GreenPassUtility.c; sourceTree = "<group>"; };
 		52DF597E2788A1B100E5F55A /* bin */ = {isa = PBXFileReference; lastKnownFileType = folder; path = bin; sourceTree = "<group>"; };
 		52DF597F2788A1B100E5F55A /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		52DF59802788A1B100E5F55A /* doc */ = {isa = PBXFileReference; lastKnownFileType = folder; path = doc; sourceTree = "<group>"; };
@@ -76,9 +82,13 @@
 				52B6726E2788BE06000E28FE /* makefile */,
 				52B672712788BE15000E28FE /* NetWrapper.h */,
 				52B672702788BE15000E28FE /* UsageUtility.h */,
+				52B672792788D31A000E28FE /* GreenPassUtility.h */,
+				52B672762788CD54000E28FE /* clientCitizen.h */,
 				52B672742788BEE2000E28FE /* NetWrapper.c */,
 				52B672722788BE66000E28FE /* UsageUtility.c */,
+				52B6727A2788D31A000E28FE /* GreenPassUtility.c */,
 				525688B527889F5200D1FAE5 /* main.c */,
+				52B672772788CD54000E28FE /* clientCitizen.c */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -143,6 +153,8 @@
 				52B672732788BE66000E28FE /* UsageUtility.c in Sources */,
 				52B672752788BEE2000E28FE /* NetWrapper.c in Sources */,
 				52B6726F2788BE06000E28FE /* makefile in Sources */,
+				52B6727B2788D31A000E28FE /* GreenPassUtility.c in Sources */,
+				52B672782788CD54000E28FE /* clientCitizen.c in Sources */,
 				525688B627889F5200D1FAE5 /* main.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -44,7 +44,6 @@ ssize_t fullRead (int fileDescriptor, void * buffer, size_t nBytes) {
         buffer += nBytesRead;
     }
     
-    buffer = 0;
     return nBytesLeft;
 }
 

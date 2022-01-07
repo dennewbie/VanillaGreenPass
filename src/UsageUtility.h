@@ -37,6 +37,8 @@
 #include <netdb.h>
 // gethostbyname, gethostbyname2, gethostbyaddr
 
+#include <ctype.h>
+
 
 #define BUFFER_SIZE 1023
 #define MAX_LINE 255

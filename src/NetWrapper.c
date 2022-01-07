@@ -11,7 +11,7 @@ int wsocket (int domain, int type, int protocol) {
     int socketFileDescriptor;
     
     if ((socketFileDescriptor = socket(domain, type, protocol)) == -1) raiseError(WSOCKET_SCOPE, SOCKET_ERROR);
-        
+    
     return socketFileDescriptor;
 }
 
@@ -70,4 +70,10 @@ ssize_t wrecvfrom (int socketFileDescriptor, void * restrict buffer, size_t buff
     ssize_t nRead;
     if ((nRead = recvfrom(socketFileDescriptor, buffer, bufferSize, flags, sourceAddress, sourceAddressLength)) < 0) raiseError(WRECVFROM_SCOPE, WRECVFROM_ERROR);
     return nRead;
+}
+
+//check whether the IP is valid or not
+int checkIP (char * IP_string) {
+    char tempBuffer[16];
+    if ((inet_pton(AF_INET, IP_string, (void *) tempBuffer)) <= 0) && ((inet_pton(AF_INET6, IP_string, (void *) tempBuffer)) <= 0) raiseError(CHECK_IP_SCOPE, CHECK_IP_ERROR);
 }
