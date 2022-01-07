@@ -25,6 +25,10 @@
 /* Begin PBXFileReference section */
 		525688B227889F5200D1FAE5 /* VanillaGreenPass */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = VanillaGreenPass; sourceTree = BUILT_PRODUCTS_DIR; };
 		525688B527889F5200D1FAE5 /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
+		52DF597E2788A1B100E5F55A /* bin */ = {isa = PBXFileReference; lastKnownFileType = folder; path = bin; sourceTree = "<group>"; };
+		52DF597F2788A1B100E5F55A /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		52DF59802788A1B100E5F55A /* doc */ = {isa = PBXFileReference; lastKnownFileType = folder; path = doc; sourceTree = "<group>"; };
+		52DF59812788A1B100E5F55A /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -42,6 +46,10 @@
 			isa = PBXGroup;
 			children = (
 				525688B427889F5200D1FAE5 /* src */,
+				52DF597E2788A1B100E5F55A /* bin */,
+				52DF59802788A1B100E5F55A /* doc */,
+				52DF59812788A1B100E5F55A /* LICENSE */,
+				52DF597F2788A1B100E5F55A /* README.md */,
 				525688B327889F5200D1FAE5 /* Products */,
 			);
 			sourceTree = "<group>";
