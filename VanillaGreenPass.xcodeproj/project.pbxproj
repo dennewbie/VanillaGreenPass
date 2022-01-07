@@ -73,12 +73,12 @@
 		525688B427889F5200D1FAE5 /* src */ = {
 			isa = PBXGroup;
 			children = (
-				525688B527889F5200D1FAE5 /* main.c */,
 				52B6726E2788BE06000E28FE /* makefile */,
 				52B672712788BE15000E28FE /* NetWrapper.h */,
 				52B672702788BE15000E28FE /* UsageUtility.h */,
 				52B672742788BEE2000E28FE /* NetWrapper.c */,
 				52B672722788BE66000E28FE /* UsageUtility.c */,
+				525688B527889F5200D1FAE5 /* main.c */,
 			);
 			path = src;
 			sourceTree = "<group>";
