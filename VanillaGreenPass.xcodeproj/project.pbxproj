@@ -8,6 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		525688B627889F5200D1FAE5 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 525688B527889F5200D1FAE5 /* main.c */; };
+		52B6726F2788BE06000E28FE /* makefile in Sources */ = {isa = PBXBuildFile; fileRef = 52B6726E2788BE06000E28FE /* makefile */; };
+		52B672732788BE66000E28FE /* UsageUtility.c in Sources */ = {isa = PBXBuildFile; fileRef = 52B672722788BE66000E28FE /* UsageUtility.c */; };
+		52B672752788BEE2000E28FE /* NetWrapper.c in Sources */ = {isa = PBXBuildFile; fileRef = 52B672742788BEE2000E28FE /* NetWrapper.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -25,6 +28,11 @@
 /* Begin PBXFileReference section */
 		525688B227889F5200D1FAE5 /* VanillaGreenPass */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = VanillaGreenPass; sourceTree = BUILT_PRODUCTS_DIR; };
 		525688B527889F5200D1FAE5 /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
+		52B6726E2788BE06000E28FE /* makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; path = makefile; sourceTree = "<group>"; };
+		52B672702788BE15000E28FE /* UsageUtility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UsageUtility.h; sourceTree = "<group>"; };
+		52B672712788BE15000E28FE /* NetWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NetWrapper.h; sourceTree = "<group>"; };
+		52B672722788BE66000E28FE /* UsageUtility.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = UsageUtility.c; sourceTree = "<group>"; };
+		52B672742788BEE2000E28FE /* NetWrapper.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = NetWrapper.c; sourceTree = "<group>"; };
 		52DF597E2788A1B100E5F55A /* bin */ = {isa = PBXFileReference; lastKnownFileType = folder; path = bin; sourceTree = "<group>"; };
 		52DF597F2788A1B100E5F55A /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		52DF59802788A1B100E5F55A /* doc */ = {isa = PBXFileReference; lastKnownFileType = folder; path = doc; sourceTree = "<group>"; };
@@ -66,6 +74,11 @@
 			isa = PBXGroup;
 			children = (
 				525688B527889F5200D1FAE5 /* main.c */,
+				52B6726E2788BE06000E28FE /* makefile */,
+				52B672712788BE15000E28FE /* NetWrapper.h */,
+				52B672702788BE15000E28FE /* UsageUtility.h */,
+				52B672742788BEE2000E28FE /* NetWrapper.c */,
+				52B672722788BE66000E28FE /* UsageUtility.c */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -127,6 +140,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				52B672732788BE66000E28FE /* UsageUtility.c in Sources */,
+				52B672752788BEE2000E28FE /* NetWrapper.c in Sources */,
+				52B6726F2788BE06000E28FE /* makefile in Sources */,
 				525688B627889F5200D1FAE5 /* main.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
