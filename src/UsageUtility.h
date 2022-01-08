@@ -43,7 +43,7 @@
 #define BUFFER_SIZE 1023
 #define MAX_LINE 255
 
-#define USAGE_ERROR 250
+#define USAGE_ERROR 1
 #define CHECK_USAGE_SCOPE "usage"
 
 #define WRITE_ERROR 2
@@ -87,6 +87,9 @@
 
 #define GETLINE_SCOPE "getline"
 #define GETLINE_ERROR 15
+
+#define MKTIME_SCOPE "mktime"
+#define MKTIME_ERROR 16
 
 
 

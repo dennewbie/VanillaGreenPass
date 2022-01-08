@@ -12,11 +12,5 @@
 
 
 
-typedef struct {
-    time_t vaccineExpirationDate;
-    enum boolean requestResult;
-} centroVaccinaleReply;
-
-void getVaccination(int serverSocketFileDescriptor, const void * healthCardNumber, size_t nBytes);
-
+void getVaccination         (int centroVaccinaleSocketFileDescriptor, const void * healthCardNumber, size_t nBytes);
 #endif /* clientCitizen_h */

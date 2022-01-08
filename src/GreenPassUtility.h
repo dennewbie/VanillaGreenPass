@@ -14,9 +14,18 @@
 #define CHECK_HEALTH_CARD_NUMBER_ERROR 200
 
 #define MONTHS_TO_WAIT_FOR_NEXT_VACCINATION 5
+#define HEALTH_CARD_NUMBER_LENGTH 20
+#define MONTHS_IN_A_YEAR 12
 
 
 
-void checkHealtCardNumber(char * healthCardNumber);
+typedef struct {
+    time_t vaccineExpirationDate;
+    enum boolean requestResult;
+} centroVaccinaleReply;
+
+void checkHealtCardNumber           (char * healthCardNumber);
+void retrieveConfigurationData      (const char * configFilePath, char ** configurationIP, unsigned short int * configurationPort);
+time_t getVaccineExpirationDate     (void);
 
 #endif /* GreenPassUtility_h */
