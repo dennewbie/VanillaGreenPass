@@ -19,7 +19,7 @@ void retrieveConfigurationData (const char * configFilePath, char ** configurati
     char * tempStringConfigurationIP = NULL, * stringServerAddressPort = NULL;
     
     filePointer = fopen(configFilePath, "r");
-    if (filePointer == NULL) raiseError(FOPEN_SCOPE, FOPEN_ERROR);
+    if (!filePointer) raiseError(FOPEN_SCOPE, FOPEN_ERROR);
     if ((getLineBytes = getline(& tempStringConfigurationIP, & IPlength, filePointer)) < 0) raiseError(GETLINE_SCOPE, GETLINE_ERROR);
     *configurationIP = (char *) calloc(strlen(tempStringConfigurationIP) - 1, sizeof(char));
     if (! *configurationIP) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
@@ -27,6 +27,7 @@ void retrieveConfigurationData (const char * configFilePath, char ** configurati
     checkIP(*configurationIP);
     if ((getLineBytes = getline(& stringServerAddressPort, & portLength, filePointer)) < 0) raiseError(GETLINE_SCOPE, GETLINE_ERROR);
     *configurationPort = (unsigned short int) strtoul(stringServerAddressPort, (char **) NULL, 10);
+    fclose(filePointer);
 }
 
 time_t getVaccineExpirationDate () {

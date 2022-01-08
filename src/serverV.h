@@ -10,4 +10,10 @@
 
 #include "GreenPassUtility.h"
 
+#define LINE_LENGTH_DAT_FILE 45
+
+
+
+void * centroVaccinaleRequestHandler(void);
+
 #endif /* serverV_h */

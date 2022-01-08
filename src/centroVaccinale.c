@@ -75,7 +75,7 @@ void clientCitizenRequestHandler (int connectionFileDescriptor, int serverV_Sock
     if ((fullReadReturnValue = fullRead(connectionFileDescriptor, (void *) buffer, (size_t) HEALTH_CARD_NUMBER_LENGTH)) < 0) raiseError(FULL_READ_SCOPE, (int) fullReadReturnValue);
     
     strcpy((char *) newCentroVaccinaleRequest->healthCardNumber, (const char *)  buffer);
-    newCentroVaccinaleRequest->vaccineExpirationDate = getVaccineExpirationDate();
+    newCentroVaccinaleRequest->vaccineExpirationDate = time(NULL);
     if ((fullWriteReturnValue = fullWrite(serverV_SocketFileDescriptor, (const void *) & centroVaccinaleSender, (size_t) sizeof(centroVaccinaleSender))) < 0) raiseError(FULL_WRITE_SCOPE, (int) fullWriteReturnValue);
     if ((fullWriteReturnValue = fullWrite(serverV_SocketFileDescriptor, (const void *) newCentroVaccinaleRequest, (size_t) sizeof(centroVaccinaleRequestToServerV))) < 0) raiseError(FULL_WRITE_SCOPE, (int) fullWriteReturnValue);
     if ((fullReadReturnValue = fullRead(serverV_SocketFileDescriptor, (void *) newServerV_Reply, (size_t) sizeof(serverV_ReplyToCentroVaccinale))) < 0) raiseError(FULL_READ_SCOPE, (int) fullReadReturnValue);

@@ -38,6 +38,7 @@
 // gethostbyname, gethostbyname2, gethostbyaddr
 
 #include <ctype.h>
+#include <pthread.h>
 
 
 #define BUFFER_SIZE 1023
@@ -90,6 +91,12 @@
 
 #define MKTIME_SCOPE "mktime"
 #define MKTIME_ERROR 16
+
+#define PTHREAD_CREATE_SCOPE "pthread_create"
+#define PTHREAD_CREATE_ERROR 17
+
+#define PTHREAD_MUTEX_INIT_SCOPE "pthread_mutex_init"
+#define PTHREAD_MUTEX_INIT_ERROR 18
 
 
 
