@@ -23,7 +23,7 @@ int main (int argc, char * argv[]) {
     serverV_Address.sin_family = AF_INET;
     serverV_Address.sin_port   = htons(serverV_Port);
     if (inet_pton(AF_INET, stringServerV_AddressIP, (void *) & serverV_Address.sin_addr) <= 0) raiseError(INET_PTON_SCOPE, INET_PTON_ERROR);
-    wconnect(serverV_SocketFileDescriptor, (struct sockaddr *) & serverV_Address, (socklen_t) sizeof(serverV_Address));
+//    wconnect(serverV_SocketFileDescriptor, (struct sockaddr *) & serverV_Address, (socklen_t) sizeof(serverV_Address));
     
     listenFileDescriptor = wsocket(AF_INET, SOCK_STREAM, 0);
     if (setsockopt(listenFileDescriptor, SOL_SOCKET, SO_REUSEADDR, & enable, (socklen_t) sizeof(int)) < 0) raiseError(SET_SOCK_OPT_SCOPE, SET_SOCK_OPT_ERROR);
@@ -52,18 +52,9 @@ int main (int argc, char * argv[]) {
             
             if ((fullReadReturnValue = fullRead(connectionFileDescritor, (void *) buffer, (size_t) HEALTH_CARD_NUMBER_LENGTH)) < 0) raiseError(FULL_READ_SCOPE, (int) fullReadReturnValue);
             newCentroVaccinaleReply->vaccineExpirationDate = getVaccineExpirationDate();
-            
-            
-            
-            
+            newCentroVaccinaleReply->requestResult = TRUE;
             
             if ((fullWriteReturnValue = fullWrite(connectionFileDescritor, (const void *) newCentroVaccinaleReply, (size_t) sizeof(centroVaccinaleReply))) < 0) raiseError(FULL_WRITE_SCOPE, (int) fullWriteReturnValue);
-            
-            
-//            if (snprintf(buffer, sizeof(buffer), "%.24s\r\n", ctime(& ticks)) < 0) raiseError(SNPRINTF_SCOPE, SNPRINTF_ERROR);
-//            if (fullWrite(connectionFileDescritor, (const void *) buffer, strlen(buffer) * sizeof(char)) != 0) raiseError(WRITE_SCOPE, WRITE_ERROR);
-//            if (logging) clientLog(AF_INET, (struct sockaddr_in *) & client, LOG_IP);
-            
             wclose(connectionFileDescritor);
             exit(0);
         }

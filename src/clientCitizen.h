@@ -13,4 +13,5 @@
 
 
 void getVaccination         (int centroVaccinaleSocketFileDescriptor, const void * healthCardNumber, size_t nBytes);
+
 #endif /* clientCitizen_h */
