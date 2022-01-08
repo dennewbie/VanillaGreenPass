@@ -10,11 +10,14 @@
 int main (int argc, char * argv[]) {
     int serverV_SocketFileDescriptor, listenFileDescriptor, connectionFileDescriptor, enable = TRUE;
     struct sockaddr_in serverV_Address, client, centroVaccinaleAddress;
-    const char * configFilePathCentroVaccinale = "../conf/centroVaccinale.conf", * configFilePathClient = "../conf/clientCitizen.conf";
-    char * stringServerV_AddressIP = NULL, * stringCentroVaccinale_AddressIP = NULL;
+    const char * configFilePathCentroVaccinale = "../conf/centroVaccinale.conf";/* , * configFilePathClient = "../conf/clientCitizen.conf"; */
+    const char * expectedUsageMessage = "<Centro Vaccinale Port>";
+    char * stringServerV_AddressIP = NULL/* , * stringCentroVaccinale_AddressIP = NULL */;
     unsigned short int serverV_Port, centroVaccinalePort;
     pid_t childPid;
     
+    checkUsage(argc, (const char **) argv, 2, expectedUsageMessage);
+    centroVaccinalePort = (unsigned short int) strtoul(argv[1], (char **) NULL, 10);
     retrieveConfigurationData(configFilePathCentroVaccinale, & stringServerV_AddressIP, & serverV_Port);
     
     serverV_SocketFileDescriptor = wsocket(AF_INET, SOCK_STREAM, 0);
@@ -29,7 +32,7 @@ int main (int argc, char * argv[]) {
     memset((void *) & centroVaccinaleAddress, 0, sizeof(centroVaccinaleAddress));
     memset((void *) & client, 0, sizeof(client));
     
-    retrieveConfigurationData(configFilePathClient, & stringCentroVaccinale_AddressIP, & centroVaccinalePort);
+//    retrieveConfigurationData(configFilePathClient, & stringCentroVaccinale_AddressIP, & centroVaccinalePort);
     centroVaccinaleAddress.sin_family      = AF_INET;
     centroVaccinaleAddress.sin_addr.s_addr = htonl(INADDR_ANY);
     centroVaccinaleAddress.sin_port        = htons(centroVaccinalePort);
@@ -61,6 +64,7 @@ int main (int argc, char * argv[]) {
 void clientCitizenRequestHandler (int connectionFileDescriptor, int serverV_SocketFileDescriptor) {
     char buffer[HEALTH_CARD_NUMBER_LENGTH];
     ssize_t fullWriteReturnValue, fullReadReturnValue;
+    unsigned short int centroVaccinaleSender = centroVaccinaleSender;
     centroVaccinaleReplyToClientCitizen * newCentroVaccinaleReply = (centroVaccinaleReplyToClientCitizen *) calloc(1, sizeof(centroVaccinaleReplyToClientCitizen));
     centroVaccinaleRequestToServerV * newCentroVaccinaleRequest = (centroVaccinaleRequestToServerV *) calloc(1, sizeof(centroVaccinaleRequestToServerV));
     serverV_ReplyToCentroVaccinale * newServerV_Reply = (serverV_ReplyToCentroVaccinale *) calloc(1, sizeof(serverV_ReplyToCentroVaccinale));
@@ -72,6 +76,7 @@ void clientCitizenRequestHandler (int connectionFileDescriptor, int serverV_Sock
     
     strcpy((char *) newCentroVaccinaleRequest->healthCardNumber, (const char *)  buffer);
     newCentroVaccinaleRequest->vaccineExpirationDate = getVaccineExpirationDate();
+    if ((fullWriteReturnValue = fullWrite(serverV_SocketFileDescriptor, (const void *) & centroVaccinaleSender, (size_t) sizeof(centroVaccinaleSender))) < 0) raiseError(FULL_WRITE_SCOPE, (int) fullWriteReturnValue);
     if ((fullWriteReturnValue = fullWrite(serverV_SocketFileDescriptor, (const void *) newCentroVaccinaleRequest, (size_t) sizeof(centroVaccinaleRequestToServerV))) < 0) raiseError(FULL_WRITE_SCOPE, (int) fullWriteReturnValue);
     if ((fullReadReturnValue = fullRead(serverV_SocketFileDescriptor, (void *) newServerV_Reply, (size_t) sizeof(serverV_ReplyToCentroVaccinale))) < 0) raiseError(FULL_READ_SCOPE, (int) fullReadReturnValue);
     
@@ -83,5 +88,4 @@ void clientCitizenRequestHandler (int connectionFileDescriptor, int serverV_Sock
     free(newCentroVaccinaleReply);
     free(newCentroVaccinaleRequest);
     free(newServerV_Reply);
-    
 }

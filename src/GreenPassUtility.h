@@ -36,6 +36,12 @@ typedef struct {
     enum boolean requestResult;
 } serverV_ReplyToCentroVaccinale;
 
+enum sender {
+    centroVaccinaleSender,
+    clientS_viaServerG_Sender,
+    clientT_viaServerG_Sender
+};
+
 void checkHealtCardNumber           (char * healthCardNumber);
 void retrieveConfigurationData      (const char * configFilePath, char ** configurationIP, unsigned short int * configurationPort);
 time_t getVaccineExpirationDate     (void);
