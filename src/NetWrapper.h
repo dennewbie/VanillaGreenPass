@@ -78,6 +78,6 @@ void    clientLog           (int addressFamily, const struct sockaddr_in * clien
 ssize_t wsendto                (int socketFileDescriptor, const void * buffer, size_t bufferSize, int flags, const struct sockaddr * destinationAddress, socklen_t destinationAddressLength);
 ssize_t wrecvfrom              (int socketFileDescriptor, void * restrict buffer, size_t bufferSize, int flags, struct sockaddr * restrict sourceAddress, socklen_t * restrict sourceAddressLength);
 
-int checkIP (char * IP_string);
+void checkIP (char * IP_string);
 
 #endif /* NetWrapper_h */
