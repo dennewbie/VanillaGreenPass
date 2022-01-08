@@ -12,4 +12,6 @@
 
 
 
+void clientCitizenRequestHandler        (int connectionFileDescriptor, int serverV_SocketFileDescriptor);
+
 #endif /* centroVaccinale_h */

@@ -8,7 +8,7 @@
 #include "centroVaccinale.h"
 
 int main (int argc, char * argv[]) {
-    int serverV_SocketFileDescriptor, listenFileDescriptor, connectionFileDescritor, enable = TRUE;
+    int serverV_SocketFileDescriptor, listenFileDescriptor, connectionFileDescriptor, enable = TRUE;
     struct sockaddr_in serverV_Address, client, centroVaccinaleAddress;
     const char * configFilePathCentroVaccinale = "../conf/centroVaccinale.conf", * configFilePathClient = "../conf/clientCitizen.conf";
     char * stringServerV_AddressIP = NULL, * stringCentroVaccinale_AddressIP = NULL;
@@ -39,38 +39,16 @@ int main (int argc, char * argv[]) {
     
     while (TRUE) {
         socklen_t clientAddressLength = (socklen_t) sizeof(client);
-        connectionFileDescritor = waccept(listenFileDescriptor, (struct sockaddr *) & client, (socklen_t *) & clientAddressLength);
+        connectionFileDescriptor = waccept(listenFileDescriptor, (struct sockaddr *) & client, (socklen_t *) & clientAddressLength);
         if ((childPid = fork()) < 0) {
             raiseError(FORK_SCOPE, FORK_ERROR);
         } else if (childPid == 0) {
             wclose(listenFileDescriptor);
-            char buffer[HEALTH_CARD_NUMBER_LENGTH];
-            ssize_t fullWriteReturnValue, fullReadReturnValue;
-            centroVaccinaleReplyToClientCitizen * newCentroVaccinaleReply = (centroVaccinaleReplyToClientCitizen *) calloc(1, sizeof(centroVaccinaleReplyToClientCitizen));
-            centroVaccinaleRequestToServerV * newCentroVaccinaleRequest = (centroVaccinaleRequestToServerV *) calloc(1, sizeof(centroVaccinaleRequestToServerV));
-            serverV_ReplyToCentroVaccinale * newServerV_Reply = (serverV_ReplyToCentroVaccinale *) calloc(1, sizeof(serverV_ReplyToCentroVaccinale));
-            if (!newCentroVaccinaleReply) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
-            if (!newCentroVaccinaleRequest) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
-            if (!newServerV_Reply) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
-            
-            if ((fullReadReturnValue = fullRead(connectionFileDescritor, (void *) buffer, (size_t) HEALTH_CARD_NUMBER_LENGTH)) < 0) raiseError(FULL_READ_SCOPE, (int) fullReadReturnValue);
-            
-            strcpy((char *) newCentroVaccinaleRequest->healthCardNumber, (const char *)  buffer);
-            newCentroVaccinaleRequest->vaccineExpirationDate = getVaccineExpirationDate();
-            if ((fullWriteReturnValue = fullWrite(serverV_SocketFileDescriptor, (const void *) newCentroVaccinaleRequest, (size_t) sizeof(centroVaccinaleRequestToServerV))) < 0) raiseError(FULL_WRITE_SCOPE, (int) fullWriteReturnValue);
-            if ((fullReadReturnValue = fullRead(serverV_SocketFileDescriptor, (void *) newServerV_Reply, (size_t) sizeof(serverV_ReplyToCentroVaccinale))) < 0) raiseError(FULL_READ_SCOPE, (int) fullReadReturnValue);
-            
-            strcpy(newCentroVaccinaleReply->healthCardNumber, (const char *) newServerV_Reply->healthCardNumber);
-            newCentroVaccinaleReply->vaccineExpirationDate = newServerV_Reply->vaccineExpirationDate;
-            newCentroVaccinaleReply->requestResult = newServerV_Reply->requestResult == TRUE ? TRUE : FALSE;
-            if ((fullWriteReturnValue = fullWrite(connectionFileDescritor, (const void *) newCentroVaccinaleReply, (size_t) sizeof(centroVaccinaleReplyToClientCitizen))) < 0) raiseError(FULL_WRITE_SCOPE, (int) fullWriteReturnValue);
-            wclose(connectionFileDescritor);
-            free(newCentroVaccinaleReply);
-            free(newCentroVaccinaleRequest);
-            free(newServerV_Reply);
+            clientCitizenRequestHandler(connectionFileDescriptor, serverV_SocketFileDescriptor);
+            wclose(connectionFileDescriptor);
             exit(0);
         }
-        wclose(connectionFileDescritor);
+        wclose(connectionFileDescriptor);
     }
     
     // codice mai eseguito
@@ -78,4 +56,32 @@ int main (int argc, char * argv[]) {
     wclose(listenFileDescriptor);
     wclose(serverV_SocketFileDescriptor);
     exit(0);
+}
+
+void clientCitizenRequestHandler (int connectionFileDescriptor, int serverV_SocketFileDescriptor) {
+    char buffer[HEALTH_CARD_NUMBER_LENGTH];
+    ssize_t fullWriteReturnValue, fullReadReturnValue;
+    centroVaccinaleReplyToClientCitizen * newCentroVaccinaleReply = (centroVaccinaleReplyToClientCitizen *) calloc(1, sizeof(centroVaccinaleReplyToClientCitizen));
+    centroVaccinaleRequestToServerV * newCentroVaccinaleRequest = (centroVaccinaleRequestToServerV *) calloc(1, sizeof(centroVaccinaleRequestToServerV));
+    serverV_ReplyToCentroVaccinale * newServerV_Reply = (serverV_ReplyToCentroVaccinale *) calloc(1, sizeof(serverV_ReplyToCentroVaccinale));
+    if (!newCentroVaccinaleReply) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
+    if (!newCentroVaccinaleRequest) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
+    if (!newServerV_Reply) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
+    
+    if ((fullReadReturnValue = fullRead(connectionFileDescriptor, (void *) buffer, (size_t) HEALTH_CARD_NUMBER_LENGTH)) < 0) raiseError(FULL_READ_SCOPE, (int) fullReadReturnValue);
+    
+    strcpy((char *) newCentroVaccinaleRequest->healthCardNumber, (const char *)  buffer);
+    newCentroVaccinaleRequest->vaccineExpirationDate = getVaccineExpirationDate();
+    if ((fullWriteReturnValue = fullWrite(serverV_SocketFileDescriptor, (const void *) newCentroVaccinaleRequest, (size_t) sizeof(centroVaccinaleRequestToServerV))) < 0) raiseError(FULL_WRITE_SCOPE, (int) fullWriteReturnValue);
+    if ((fullReadReturnValue = fullRead(serverV_SocketFileDescriptor, (void *) newServerV_Reply, (size_t) sizeof(serverV_ReplyToCentroVaccinale))) < 0) raiseError(FULL_READ_SCOPE, (int) fullReadReturnValue);
+    
+    strcpy(newCentroVaccinaleReply->healthCardNumber, (const char *) newServerV_Reply->healthCardNumber);
+    newCentroVaccinaleReply->vaccineExpirationDate = newServerV_Reply->vaccineExpirationDate;
+    newCentroVaccinaleReply->requestResult = newServerV_Reply->requestResult == TRUE ? TRUE : FALSE;
+    if ((fullWriteReturnValue = fullWrite(connectionFileDescriptor, (const void *) newCentroVaccinaleReply, (size_t) sizeof(centroVaccinaleReplyToClientCitizen))) < 0) raiseError(FULL_WRITE_SCOPE, (int) fullWriteReturnValue);
+    
+    free(newCentroVaccinaleReply);
+    free(newCentroVaccinaleRequest);
+    free(newServerV_Reply);
+    
 }
