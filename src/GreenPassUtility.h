@@ -2,7 +2,7 @@
 //  GreenPassUtility.h
 //  VanillaGreenPass
 //
-//  Created by Denny Caruso on 07/01/22.
+//  Created by Denny Caruso and Francesco Calcopietro on 07/01/22.
 //
 
 #ifndef GreenPassUtility_h

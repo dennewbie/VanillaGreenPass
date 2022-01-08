@@ -14,11 +14,12 @@ int main (int argc, char * argv[]) {
     int serverSocketFileDescriptor;
     struct sockaddr_in serverAddress;
     const char * expectedUsageMessage = "<Numero Tessera Sanitaria>";
-    unsigned short int serverPort;
     char * stringServerAddressIP = NULL, * tempStringServerAddressIP = NULL, * stringServerAddressPort = NULL;
+    unsigned short int serverPort;
+    char * healthCardNumber;
     
     checkUsage(argc, (const char **) argv, 2, expectedUsageMessage);
-    char * healthCardNumber = (char *) calloc(strlen(argv[1]), sizeof(char));
+    healthCardNumber = (char *) calloc(strlen(argv[1]), sizeof(char));
     checkHealtCardNumber(argv[1]);
     if (!healthCardNumber) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
     strcpy(healthCardNumber, argv[1]);

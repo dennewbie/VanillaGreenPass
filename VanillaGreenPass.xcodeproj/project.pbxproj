@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		528FA0BE2789AD34004C7AA3 /* centroVaccinale.c in Sources */ = {isa = PBXBuildFile; fileRef = 528FA0BD2789AD34004C7AA3 /* centroVaccinale.c */; };
 		52B6726F2788BE06000E28FE /* Makefile in Sources */ = {isa = PBXBuildFile; fileRef = 52B6726E2788BE06000E28FE /* Makefile */; };
 		52B672732788BE66000E28FE /* UsageUtility.c in Sources */ = {isa = PBXBuildFile; fileRef = 52B672722788BE66000E28FE /* UsageUtility.c */; };
 		52B672752788BEE2000E28FE /* NetWrapper.c in Sources */ = {isa = PBXBuildFile; fileRef = 52B672742788BEE2000E28FE /* NetWrapper.c */; };
@@ -29,6 +30,8 @@
 /* Begin PBXFileReference section */
 		525688B227889F5200D1FAE5 /* VanillaGreenPass */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = VanillaGreenPass; sourceTree = BUILT_PRODUCTS_DIR; };
 		528FA0BB2789A13D004C7AA3 /* conf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = conf; sourceTree = SOURCE_ROOT; };
+		528FA0BC2789AD34004C7AA3 /* centroVaccinale.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = centroVaccinale.h; sourceTree = "<group>"; };
+		528FA0BD2789AD34004C7AA3 /* centroVaccinale.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = centroVaccinale.c; sourceTree = "<group>"; };
 		52B6726E2788BE06000E28FE /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
 		52B672702788BE15000E28FE /* UsageUtility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UsageUtility.h; sourceTree = "<group>"; };
 		52B672712788BE15000E28FE /* NetWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NetWrapper.h; sourceTree = "<group>"; };
@@ -81,13 +84,15 @@
 			children = (
 				52B6726E2788BE06000E28FE /* Makefile */,
 				52B672712788BE15000E28FE /* NetWrapper.h */,
-				52B672702788BE15000E28FE /* UsageUtility.h */,
-				52B672792788D31A000E28FE /* GreenPassUtility.h */,
-				52B672762788CD54000E28FE /* clientCitizen.h */,
 				52B672742788BEE2000E28FE /* NetWrapper.c */,
+				52B672702788BE15000E28FE /* UsageUtility.h */,
 				52B672722788BE66000E28FE /* UsageUtility.c */,
+				52B672792788D31A000E28FE /* GreenPassUtility.h */,
 				52B6727A2788D31A000E28FE /* GreenPassUtility.c */,
+				52B672762788CD54000E28FE /* clientCitizen.h */,
 				52B672772788CD54000E28FE /* clientCitizen.c */,
+				528FA0BC2789AD34004C7AA3 /* centroVaccinale.h */,
+				528FA0BD2789AD34004C7AA3 /* centroVaccinale.c */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -152,6 +157,7 @@
 				52B672732788BE66000E28FE /* UsageUtility.c in Sources */,
 				52B672752788BEE2000E28FE /* NetWrapper.c in Sources */,
 				52B6726F2788BE06000E28FE /* Makefile in Sources */,
+				528FA0BE2789AD34004C7AA3 /* centroVaccinale.c in Sources */,
 				52B6727B2788D31A000E28FE /* GreenPassUtility.c in Sources */,
 				52B672782788CD54000E28FE /* clientCitizen.c in Sources */,
 			);

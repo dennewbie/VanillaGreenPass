@@ -75,8 +75,8 @@ void    wlisten             (int socketFileDescriptor, int backlog);
 int     waccept             (int socketFileDescriptor, struct sockaddr * restrict address, socklen_t * restrict addressLength);
 void    clientLog           (int addressFamily, const struct sockaddr_in * clientAddress, short int logType);
 
-ssize_t wsendto                (int socketFileDescriptor, const void * buffer, size_t bufferSize, int flags, const struct sockaddr * destinationAddress, socklen_t destinationAddressLength);
-ssize_t wrecvfrom              (int socketFileDescriptor, void * restrict buffer, size_t bufferSize, int flags, struct sockaddr * restrict sourceAddress, socklen_t * restrict sourceAddressLength);
+ssize_t wsendto             (int socketFileDescriptor, const void * buffer, size_t bufferSize, int flags, const struct sockaddr * destinationAddress, socklen_t destinationAddressLength);
+ssize_t wrecvfrom           (int socketFileDescriptor, void * restrict buffer, size_t bufferSize, int flags, struct sockaddr * restrict sourceAddress, socklen_t * restrict sourceAddressLength);
 
 void checkIP (char * IP_string);
 

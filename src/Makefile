@@ -1,10 +1,4 @@
 all: clientCitizen
-
-main: main.o NetWrapper.o UsageUtility.o
-	gcc main.o NetWrapper.o UsageUtility.o -o main
-	
-main.o: main.c NetWrapper.h UsageUtility.h
-	gcc -c main.c
 	
 clientCitizen: clientCitizen.o NetWrapper.o UsageUtility.o GreenPassUtility.o
 	gcc clientCitizen.o NetWrapper.o UsageUtility.o GreenPassUtility.o -o clientCitizen
