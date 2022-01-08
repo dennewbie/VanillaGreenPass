@@ -43,7 +43,7 @@
 #define BUFFER_SIZE 1023
 #define MAX_LINE 255
 
-#define USAGE_ERROR 1
+#define USAGE_ERROR 250
 #define CHECK_USAGE_SCOPE "usage"
 
 #define WRITE_ERROR 2
@@ -75,6 +75,18 @@
 
 #define SELECT_SCOPE "select"
 #define SELECT_ERROR 11
+
+#define FULL_WRITE_SCOPE "full_write"
+#define FULL_WRITE_ERROR 12
+
+#define FULL_READ_SCOPE "full_read"
+#define FULL_READ_ERROR 13
+
+#define FOPEN_SCOPE "fopen"
+#define FOPEN_ERROR 14
+
+#define GETLINE_SCOPE "getline"
+#define GETLINE_ERROR 15
 
 
 

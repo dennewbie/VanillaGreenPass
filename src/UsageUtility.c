@@ -15,7 +15,7 @@ void checkUsage (int argc, const char * argv[], int expected_argc, const char * 
 }
 
 void raiseError (char * errorScope, int exitCode) {
-    perror(errorScope);
+    if (fprintf(stderr, "Scope: %s - Error #%d\n", errorScope, exitCode) < 0) raiseError(FPRINTF_SCOPE, FPRINTF_ERROR);
     exit(exitCode);
 }
 

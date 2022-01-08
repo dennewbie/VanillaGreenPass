@@ -13,6 +13,8 @@
 #define CHECK_HEALTH_CARD_NUMBER_SCOPE "checkHealthCardNumber"
 #define CHECK_HEALTH_CARD_NUMBER_ERROR 200
 
+#define MONTHS_TO_WAIT_FOR_NEXT_VACCINATION 5
+
 
 
 void checkHealtCardNumber(char * healthCardNumber);
