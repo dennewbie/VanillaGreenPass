@@ -20,9 +20,21 @@
 
 
 typedef struct {
+    char healthCardNumber[HEALTH_CARD_NUMBER_LENGTH];
     time_t vaccineExpirationDate;
     enum boolean requestResult;
-} centroVaccinaleReply;
+} centroVaccinaleReplyToClientCitizen;
+
+typedef struct {
+    char healthCardNumber[HEALTH_CARD_NUMBER_LENGTH];
+    time_t vaccineExpirationDate;
+} centroVaccinaleRequestToServerV;
+
+typedef struct {
+    char healthCardNumber[HEALTH_CARD_NUMBER_LENGTH];
+    time_t vaccineExpirationDate;
+    enum boolean requestResult;
+} serverV_ReplyToCentroVaccinale;
 
 void checkHealtCardNumber           (char * healthCardNumber);
 void retrieveConfigurationData      (const char * configFilePath, char ** configurationIP, unsigned short int * configurationPort);

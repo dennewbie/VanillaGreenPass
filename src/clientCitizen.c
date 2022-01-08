@@ -20,7 +20,7 @@ int main (int argc, char * argv[]) {
     healthCardNumber = (char *) calloc(strlen(argv[1]), sizeof(char));
     checkHealtCardNumber(argv[1]);
     if (!healthCardNumber) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
-    strcpy(healthCardNumber, argv[1]);
+    strcpy(healthCardNumber, (const char *) argv[1]);
     
     retrieveConfigurationData(configFilePath, & stringCentroVaccinaleAddressIP, & centroVaccinalePort);
 
@@ -43,12 +43,12 @@ int main (int argc, char * argv[]) {
 void getVaccination (int centroVaccinaleSocketFileDescriptor, const void * healthCardNumber, size_t nBytes) {
     ssize_t fullWriteReturnValue, fullReadReturnValue;
     char buffer[MAX_LINE];
-    centroVaccinaleReply * newCentroVaccinaleReply = (centroVaccinaleReply *) calloc(1, sizeof(centroVaccinaleReply));
+    centroVaccinaleReplyToClientCitizen * newCentroVaccinaleReply = (centroVaccinaleReplyToClientCitizen *) calloc(1, sizeof(centroVaccinaleReplyToClientCitizen));
     if (!newCentroVaccinaleReply) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
     
     if (fprintf(stdout, "\n... Vaccinazione in corso ...\n") < 0) raiseError(FPRINTF_SCOPE, FPRINTF_ERROR);
     if ((fullWriteReturnValue = fullWrite(centroVaccinaleSocketFileDescriptor, healthCardNumber, nBytes)) < 0) raiseError(FULL_WRITE_SCOPE, (int) fullWriteReturnValue);
-    if ((fullReadReturnValue = fullRead(centroVaccinaleSocketFileDescriptor, newCentroVaccinaleReply, (size_t) sizeof(centroVaccinaleReply))) < 0) raiseError(FULL_READ_SCOPE, (int) fullReadReturnValue);
+    if ((fullReadReturnValue = fullRead(centroVaccinaleSocketFileDescriptor, newCentroVaccinaleReply, (size_t) sizeof(centroVaccinaleReplyToClientCitizen))) < 0) raiseError(FULL_READ_SCOPE, (int) fullReadReturnValue);
     
     if (snprintf(buffer, sizeof(buffer), "%.24s\r\n", ctime(& newCentroVaccinaleReply->vaccineExpirationDate)) < 0) raiseError(SNPRINTF_SCOPE, SNPRINTF_ERROR);
     if (newCentroVaccinaleReply->requestResult == FALSE) {
