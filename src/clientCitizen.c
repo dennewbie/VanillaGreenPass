@@ -52,9 +52,9 @@ void getVaccination (int centroVaccinaleSocketFileDescriptor, const void * healt
     
     if (snprintf(buffer, sizeof(buffer), "%.24s\r\n", ctime(& newCentroVaccinaleReply->vaccineExpirationDate)) < 0) raiseError(SNPRINTF_SCOPE, SNPRINTF_ERROR);
     if (newCentroVaccinaleReply->requestResult == FALSE) {
-        if (fprintf(stdout, "\nNon e' possibile effetuare un'altra dose di vaccino. Devono passare almeno %d mesi dall'ultima inoculazione.\nData a partire dalla quale e' possibile effettuare un'altra dose di vaccino: %s\n", MONTHS_TO_WAIT_FOR_NEXT_VACCINATION, buffer) < 0) raiseError(FPRINTF_SCOPE, FPRINTF_ERROR);
+        if (fprintf(stdout, "\nNon e' possibile effetuare un'altra dose di vaccino. Devono passare almeno %d mesi dall'ultima inoculazione.\nData a partire dalla quale e' possibile effettuare un'altra dose di vaccino: %s\nArrivederci.", MONTHS_TO_WAIT_FOR_NEXT_VACCINATION, buffer) < 0) raiseError(FPRINTF_SCOPE, FPRINTF_ERROR);
     } else {
-        if (fprintf(stdout, "\nLa vaccinazione e' andata a buon fine.\nData a partire dalla quale e' possibile effettuare un'altra dose di vaccino: %s\n", buffer) < 0) raiseError(FPRINTF_SCOPE, FPRINTF_ERROR);
+        if (fprintf(stdout, "\nLa vaccinazione e' andata a buon fine.\nData a partire dalla quale e' possibile effettuare un'altra dose di vaccino: %s\nArrivederci.", buffer) < 0) raiseError(FPRINTF_SCOPE, FPRINTF_ERROR);
     }
     
     free(newCentroVaccinaleReply);
