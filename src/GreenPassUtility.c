@@ -46,3 +46,12 @@ time_t getVaccineExpirationDate () {
     if ((systemTime = mktime(timeInfo)) < 0) raiseError(MKTIME_SCOPE, MKTIME_ERROR);
     return systemTime;
 }
+
+char * getNowDate(void) {
+    time_t tempTime = time(NULL);
+    char * newDate = (char *) calloc(DATE_LENGTH, sizeof(char));
+    if (!newDate) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
+    struct tm * tm_time = localtime(& tempTime);
+    sprintf(newDate, "%02d-%02d-%d\n", tm_time->tm_mday, tm_time->tm_mon + 1, tm_time->tm_year + 1900);
+    return newDate;
+}

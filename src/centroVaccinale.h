@@ -12,6 +12,6 @@
 
 
 
-void clientCitizenRequestHandler (int connectionFileDescriptor, int serverV_SocketFileDescriptor, centroVaccinaleReplyToClientCitizen * newCentroVaccinaleReply, centroVaccinaleRequestToServerV * newCentroVaccinaleRequest, serverV_ReplyToCentroVaccinale * newServerV_Reply);
+void clientCitizenRequestHandler (int connectionFileDescriptor, int serverV_SocketFileDescriptor);
 
 #endif /* centroVaccinale_h */
