@@ -16,6 +16,13 @@ int main (int argc, char * argv[]) {
     unsigned short int serverV_Port, centroVaccinalePort;
     pid_t childPid;
     
+    centroVaccinaleReplyToClientCitizen * newCentroVaccinaleReply = (centroVaccinaleReplyToClientCitizen *) calloc(1, sizeof(centroVaccinaleReplyToClientCitizen));
+    centroVaccinaleRequestToServerV * newCentroVaccinaleRequest = (centroVaccinaleRequestToServerV *) calloc(1, sizeof(centroVaccinaleRequestToServerV));
+    serverV_ReplyToCentroVaccinale * newServerV_Reply = (serverV_ReplyToCentroVaccinale *) calloc(1, sizeof(serverV_ReplyToCentroVaccinale));
+    if (!newCentroVaccinaleReply) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
+    if (!newCentroVaccinaleRequest) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
+    if (!newServerV_Reply) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
+    
     checkUsage(argc, (const char **) argv, 2, expectedUsageMessage);
     centroVaccinalePort = (unsigned short int) strtoul(argv[1], (char **) NULL, 10);
     retrieveConfigurationData(configFilePathCentroVaccinale, & stringServerV_AddressIP, & serverV_Port);
@@ -47,7 +54,7 @@ int main (int argc, char * argv[]) {
             raiseError(FORK_SCOPE, FORK_ERROR);
         } else if (childPid == 0) {
             wclose(listenFileDescriptor);
-            clientCitizenRequestHandler(connectionFileDescriptor, serverV_SocketFileDescriptor);
+            clientCitizenRequestHandler(connectionFileDescriptor, serverV_SocketFileDescriptor, newCentroVaccinaleReply, newCentroVaccinaleRequest, newServerV_Reply);
             wclose(connectionFileDescriptor);
             exit(0);
         }
@@ -56,43 +63,41 @@ int main (int argc, char * argv[]) {
     
     // codice mai eseguito
     free(stringServerV_AddressIP);
+    free(newCentroVaccinaleReply);
+    free(newCentroVaccinaleRequest);
+    free(newServerV_Reply);
     wclose(listenFileDescriptor);
     wclose(serverV_SocketFileDescriptor);
     exit(0);
 }
 
-void clientCitizenRequestHandler (int connectionFileDescriptor, int serverV_SocketFileDescriptor) {
+void clientCitizenRequestHandler (int connectionFileDescriptor, int serverV_SocketFileDescriptor, centroVaccinaleReplyToClientCitizen * newCentroVaccinaleReply, centroVaccinaleRequestToServerV * newCentroVaccinaleRequest, serverV_ReplyToCentroVaccinale * newServerV_Reply) {
     char buffer[HEALTH_CARD_NUMBER_LENGTH];
     ssize_t fullWriteReturnValue, fullReadReturnValue;
     time_t localTime;
     unsigned short int centroVaccinaleSender = centroVaccinaleSender;
-    centroVaccinaleReplyToClientCitizen * newCentroVaccinaleReply = (centroVaccinaleReplyToClientCitizen *) calloc(1, sizeof(centroVaccinaleReplyToClientCitizen));
-    centroVaccinaleRequestToServerV * newCentroVaccinaleRequest = (centroVaccinaleRequestToServerV *) calloc(1, sizeof(centroVaccinaleRequestToServerV));
-    serverV_ReplyToCentroVaccinale * newServerV_Reply = (serverV_ReplyToCentroVaccinale *) calloc(1, sizeof(serverV_ReplyToCentroVaccinale));
-    if (!newCentroVaccinaleReply) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
-    if (!newCentroVaccinaleRequest) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
-    if (!newServerV_Reply) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
-    
-//    if ((fullReadReturnValue = fullRead(connectionFileDescriptor, (void *) buffer, (size_t) HEALTH_CARD_NUMBER_LENGTH)) < 0) raiseError(FULL_READ_SCOPE, (int) fullReadReturnValue);
-    
-    strcpy((char *) newCentroVaccinaleRequest->healthCardNumber, (const char *)  buffer);
-    localTime = time(NULL);
+
+    if ((fullReadReturnValue = fullRead(connectionFileDescriptor, (void *) buffer, (size_t) HEALTH_CARD_NUMBER_LENGTH)) < 0) raiseError(FULL_READ_SCOPE, (int) fullReadReturnValue);
+//    strcpy((char *) newCentroVaccinaleRequest->healthCardNumber, (const char *)  buffer);
+//    localTime = time(NULL);
 //    newCentroVaccinaleRequest->vaccineExpirationDate = localTime;
 //    if ((fullWriteReturnValue = fullWrite(serverV_SocketFileDescriptor, (const void *) & centroVaccinaleSender, (size_t) sizeof(centroVaccinaleSender))) < 0) raiseError(FULL_WRITE_SCOPE, (int) fullWriteReturnValue);
 //    if ((fullWriteReturnValue = fullWrite(serverV_SocketFileDescriptor, (const void *) newCentroVaccinaleRequest, (size_t) sizeof(centroVaccinaleRequestToServerV))) < 0) raiseError(FULL_WRITE_SCOPE, (int) fullWriteReturnValue);
 //    if ((fullReadReturnValue = fullRead(serverV_SocketFileDescriptor, (void *) newServerV_Reply, (size_t) sizeof(serverV_ReplyToCentroVaccinale))) < 0) raiseError(FULL_READ_SCOPE, (int) fullReadReturnValue);
-    
+//
 //    strcpy(newCentroVaccinaleReply->healthCardNumber, (const char *) newServerV_Reply->healthCardNumber);
 //    newCentroVaccinaleReply->vaccineExpirationDate = newServerV_Reply->vaccineExpirationDate;
 //    newCentroVaccinaleReply->requestResult = newServerV_Reply->requestResult == TRUE ? TRUE : FALSE;
-    newCentroVaccinaleReply->requestResult = FALSE;
-    newCentroVaccinaleReply->vaccineExpirationDate = localTime;
-    char * temp = "00000000000000000000";
-    strcpy(newCentroVaccinaleReply->healthCardNumber, temp);
 //    if ((fullWriteReturnValue = fullWrite(connectionFileDescriptor, (const void *) newCentroVaccinaleReply, (size_t) sizeof(centroVaccinaleReplyToClientCitizen))) < 0) raiseError(FULL_WRITE_SCOPE, (int) fullWriteReturnValue);
-    write(connectionFileDescriptor, (const void *) newCentroVaccinaleReply, (size_t) sizeof(centroVaccinaleReplyToClientCitizen));
-    
-    free(newCentroVaccinaleReply);
-    free(newCentroVaccinaleRequest);
-    free(newServerV_Reply);
+    char *temp = "00000000000000000000";
+    strcpy(newCentroVaccinaleReply->healthCardNumber, temp);
+    newCentroVaccinaleReply->vaccineExpirationDate = time(NULL);
+    newCentroVaccinaleReply->requestResult = TRUE;
+//    write(connectionFileDescriptor, (const void *) newCentroVaccinaleReply, (size_t) sizeof(centroVaccinaleReplyToClientCitizen));
+        if ((fullWriteReturnValue = fullWrite(connectionFileDescriptor, (const void *) newCentroVaccinaleReply, (size_t) sizeof(centroVaccinaleReplyToClientCitizen))) < 0) raiseError(FULL_WRITE_SCOPE, (int) fullWriteReturnValue);
+
+//    int temp1, temp2 = 1;
+//    read(connectionFileDescriptor, & temp1, sizeof(int));
+//    write(connectionFileDescriptor, & temp2, sizeof(int));
+//    printf("value temp1: %d\n", temp1);
 }
