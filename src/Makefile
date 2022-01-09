@@ -17,7 +17,7 @@ centroVaccinale.o: centroVaccinale.c centroVaccinale.h GreenPassUtility.h NetWra
 serverV: serverV.o GreenPassUtility.o NetWrapper.o UsageUtility.o
 	gcc serverV.o GreenPassUtility.o NetWrapper.o UsageUtility.o  -o serverV
 
-serverV.o: serverV serverV.h GreenPassUtility.h NetWrapper.h UsageUtility.h
+serverV.o: serverV.c serverV.h GreenPassUtility.h NetWrapper.h UsageUtility.h
 	gcc -c serverV.c
 	
 	

@@ -98,6 +98,14 @@
 #define PTHREAD_MUTEX_INIT_SCOPE "pthread_mutex_init"
 #define PTHREAD_MUTEX_INIT_ERROR 18
 
+#define STRPTIME_SCOPE "strptime"
+#define STRPTIME_ERROR 19
+
+#define REMOVE_SCOPE "remove"
+#define REMOVE_ERROR 20
+
+#define RENAME_SCOPE "rename"
+#define RENAME_ERROR 21
 
 
 #define max(x, y) ( { typeof (x) x_ = (x); typeof (y) y_ = (y); x_ > y_ ? x_ : y_; } )

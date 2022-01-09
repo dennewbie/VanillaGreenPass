@@ -14,6 +14,6 @@
 
 
 
-void * centroVaccinaleRequestHandler(void);
+void * centroVaccinaleRequestHandler(void * args);
 
 #endif /* serverV_h */
