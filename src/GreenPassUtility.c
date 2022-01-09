@@ -30,7 +30,7 @@ void retrieveConfigurationData (const char * configFilePath, char ** configurati
     fclose(filePointer);
 }
 
-time_t getVaccineExpirationDate () {
+char * getVaccineExpirationDate () {
     struct tm * timeInfo;
     time_t systemTime;
     time(& systemTime);
@@ -43,15 +43,17 @@ time_t getVaccineExpirationDate () {
         timeInfo->tm_mon = (timeInfo->tm_mon + MONTHS_TO_WAIT_FOR_NEXT_VACCINATION + 1);
     }
     
-    if ((systemTime = mktime(timeInfo)) < 0) raiseError(MKTIME_SCOPE, MKTIME_ERROR);
-    return systemTime;
+    char * vaccineExpirationDate = (char *) calloc(DATE_LENGTH, sizeof(char));
+    if (!vaccineExpirationDate) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
+    sprintf(vaccineExpirationDate, "%02d-%02d-%d\n", timeInfo->tm_mday, timeInfo->tm_mon, timeInfo->tm_year + 1900);
+    return vaccineExpirationDate;
 }
 
 char * getNowDate(void) {
     time_t tempTime = time(NULL);
-    char * newDate = (char *) calloc(DATE_LENGTH, sizeof(char));
-    if (!newDate) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
-    struct tm * tm_time = localtime(& tempTime);
-    sprintf(newDate, "%02d-%02d-%d\n", tm_time->tm_mday, tm_time->tm_mon + 1, tm_time->tm_year + 1900);
-    return newDate;
+    char * nowDate = (char *) calloc(DATE_LENGTH, sizeof(char));
+    if (!nowDate) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
+    struct tm * timeInfo = localtime(& tempTime);
+    sprintf(nowDate, "%02d-%02d-%d\n", timeInfo->tm_mday, timeInfo->tm_mon + 1, timeInfo->tm_year + 1900);
+    return nowDate;
 }

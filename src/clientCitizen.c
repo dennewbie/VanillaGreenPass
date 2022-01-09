@@ -52,9 +52,9 @@ int main (int argc, char * argv[]) {
 
 void getVaccination (int centroVaccinaleSocketFileDescriptor, const void * healthCardNumber, size_t nBytes) {
     ssize_t fullWriteReturnValue, fullReadReturnValue;
-    char buffer[MAX_LINE];
     centroVaccinaleReplyToClientCitizen * newCentroVaccinaleReply = (centroVaccinaleReplyToClientCitizen *) calloc(1, sizeof(centroVaccinaleReplyToClientCitizen));
     if (!newCentroVaccinaleReply) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
+    
     if (fprintf(stdout, "\n... Vaccinazione in corso ...\n") < 0) raiseError(FPRINTF_SCOPE, FPRINTF_ERROR);
     if ((fullWriteReturnValue = fullWrite(centroVaccinaleSocketFileDescriptor, healthCardNumber, nBytes)) != 0) raiseError(FULL_WRITE_SCOPE, (int) fullWriteReturnValue);
     if ((fullReadReturnValue = fullRead(centroVaccinaleSocketFileDescriptor, newCentroVaccinaleReply, (size_t) sizeof(centroVaccinaleReplyToClientCitizen))) != 0) raiseError(FULL_READ_SCOPE, (int) fullReadReturnValue);

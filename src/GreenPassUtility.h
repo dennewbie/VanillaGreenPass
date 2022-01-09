@@ -49,7 +49,7 @@ enum sender {
 
 void checkHealtCardNumber           (char * healthCardNumber);
 void retrieveConfigurationData      (const char * configFilePath, char ** configurationIP, unsigned short int * configurationPort);
-time_t getVaccineExpirationDate     (void);
+char * getVaccineExpirationDate     (void);
 char * getNowDate                   (void);
 
 #endif /* GreenPassUtility_h */
