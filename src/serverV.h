@@ -15,5 +15,6 @@
 
 
 void * centroVaccinaleRequestHandler(void * args);
+void updateFile(FILE * original, FILE * temp);
 
 #endif /* serverV_h */

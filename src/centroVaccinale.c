@@ -5,6 +5,8 @@
 //  Created by Denny Caruso and Francesco Calcopietro on 08/01/22.
 //
 
+// TODO: strcpy does copy also null terminator character. Can remove control on every file.
+
 #include "centroVaccinale.h"
 
 int main (int argc, char * argv[]) {
@@ -64,7 +66,6 @@ void clientCitizenRequestHandler (int connectionFileDescriptor, int serverV_Sock
     unsigned short int centroVaccinaleSender = centroVaccinaleSender;
     
     if ((fullReadReturnValue = fullRead(connectionFileDescriptor, (void *) buffer, (size_t) HEALTH_CARD_NUMBER_LENGTH * sizeof(char))) != 0) raiseError(FULL_READ_SCOPE, (int) fullReadReturnValue);
-    printf("\nRECEIVED: %s\n", buffer);
     strncpy((char *) newCentroVaccinaleRequest->healthCardNumber, (const char *)  buffer, HEALTH_CARD_NUMBER_LENGTH);
     strncpy((char *) newCentroVaccinaleRequest->nowDate, (const char *) getNowDate(), DATE_LENGTH);
     newCentroVaccinaleRequest->healthCardNumber[HEALTH_CARD_NUMBER_LENGTH - 1] = '\0';

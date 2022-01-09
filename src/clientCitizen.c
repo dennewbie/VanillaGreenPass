@@ -20,7 +20,6 @@ int main (int argc, char * argv[]) {
     if (!healthCardNumber) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
     strcpy(healthCardNumber, (const char *) argv[1]);
     healthCardNumber[HEALTH_CARD_NUMBER_LENGTH - 1] = '\0';
-//    printf("\nSTRING: %s\nLEN: %d\n", healthCardNumber, (int) strlen(healthCardNumber));
     retrieveConfigurationData(configFilePath, & stringCentroVaccinaleAddressIP, & centroVaccinalePort);
 
     centroVaccinaleSocketFileDescriptor = wsocket(AF_INET, SOCK_STREAM, 0);
