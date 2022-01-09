@@ -8,30 +8,19 @@
 #include "clientCitizen.h"
 
 int main (int argc, char * argv[]) {
-//    time_t tempo = getVaccineExpirationDate();
-//    char * time_str = ctime(& tempo);
-//   time_str[strlen(time_str)-1] = '\0';
-//   printf("Current Time : %s\n", time_str);
-//    sleep(10);
-//    char * time_str2 = ctime(& tempo);
-//   time_str[strlen(time_str2)-1] = '\0';
-//   printf("Current Time : %s\n", time_str2);
-    
-    
     int centroVaccinaleSocketFileDescriptor;
     struct sockaddr_in centroVaccinaleAddress;
-    const char * expectedUsageMessage = "<Numero Tessera Sanitaria>";
-    const char * configFilePath = "../conf/clientCitizen.conf";
-    char * stringCentroVaccinaleAddressIP = NULL;
+    const char * expectedUsageMessage = "<Numero Tessera Sanitaria>", * configFilePath = "../conf/clientCitizen.conf";
+    char * stringCentroVaccinaleAddressIP = NULL, * healthCardNumber;
     unsigned short int centroVaccinalePort;
-    char * healthCardNumber;
     
     checkUsage(argc, (const char **) argv, 2, expectedUsageMessage);
-    healthCardNumber = (char *) calloc(strlen(argv[1]), sizeof(char));
     checkHealtCardNumber(argv[1]);
+    healthCardNumber = (char *) calloc(HEALTH_CARD_NUMBER_LENGTH, sizeof(char));
     if (!healthCardNumber) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
     strcpy(healthCardNumber, (const char *) argv[1]);
-    
+    healthCardNumber[HEALTH_CARD_NUMBER_LENGTH - 1] = '\0';
+//    printf("\nSTRING: %s\nLEN: %d\n", healthCardNumber, (int) strlen(healthCardNumber));
     retrieveConfigurationData(configFilePath, & stringCentroVaccinaleAddressIP, & centroVaccinalePort);
 
     centroVaccinaleSocketFileDescriptor = wsocket(AF_INET, SOCK_STREAM, 0);
@@ -42,7 +31,7 @@ int main (int argc, char * argv[]) {
 
     wconnect(centroVaccinaleSocketFileDescriptor, (struct sockaddr *) & centroVaccinaleAddress, (socklen_t) sizeof(centroVaccinaleAddress));
     if (fprintf(stdout, "\nBenvenuti al Centro Vaccinale\nNumero tessera sanitaria: %s\n\n... A breve ti verra' inoculato il vaccino...\n", healthCardNumber) < 0) raiseError(FPRINTF_SCOPE, FPRINTF_ERROR);
-    getVaccination(centroVaccinaleSocketFileDescriptor, (const void *) healthCardNumber, (size_t) sizeof(char) * strlen(healthCardNumber));
+    getVaccination(centroVaccinaleSocketFileDescriptor, (const void *) healthCardNumber, (size_t) sizeof(char) * HEALTH_CARD_NUMBER_LENGTH);
     wclose(centroVaccinaleSocketFileDescriptor);
 
     free(stringCentroVaccinaleAddressIP);
@@ -60,9 +49,9 @@ void getVaccination (int centroVaccinaleSocketFileDescriptor, const void * healt
     if ((fullReadReturnValue = fullRead(centroVaccinaleSocketFileDescriptor, newCentroVaccinaleReply, (size_t) sizeof(centroVaccinaleReplyToClientCitizen))) != 0) raiseError(FULL_READ_SCOPE, (int) fullReadReturnValue);
     
     if (newCentroVaccinaleReply->requestResult == FALSE) {
-        if (fprintf(stdout, "\nNon e' possibile effetuare un'altra dose di vaccino. Devono passare almeno %d mesi dall'ultima inoculazione.\nData a partire dalla quale e' possibile effettuare un'altra dose di vaccino: %s\nArrivederci.", MONTHS_TO_WAIT_FOR_NEXT_VACCINATION, newCentroVaccinaleReply->vaccineExpirationDate) < 0) raiseError(FPRINTF_SCOPE, FPRINTF_ERROR);
+        if (fprintf(stdout, "\nNon e' possibile effetuare un'altra dose di vaccino. Devono passare almeno %d mesi dall'ultima inoculazione.\nData a partire dalla quale e' possibile effettuare un'altra dose di vaccino: %s\nArrivederci.\n", MONTHS_TO_WAIT_FOR_NEXT_VACCINATION, newCentroVaccinaleReply->vaccineExpirationDate) < 0) raiseError(FPRINTF_SCOPE, FPRINTF_ERROR);
     } else {
-        if (fprintf(stdout, "\nLa vaccinazione e' andata a buon fine.\nData a partire dalla quale e' possibile effettuare un'altra dose di vaccino: %s\nArrivederci.", newCentroVaccinaleReply->vaccineExpirationDate) < 0) raiseError(FPRINTF_SCOPE, FPRINTF_ERROR);
+        if (fprintf(stdout, "\nLa vaccinazione e' andata a buon fine.\nData a partire dalla quale e' possibile effettuare un'altra dose di vaccino: %s\nArrivederci.\n", newCentroVaccinaleReply->vaccineExpirationDate) < 0) raiseError(FPRINTF_SCOPE, FPRINTF_ERROR);
     }
     free(newCentroVaccinaleReply);
 }

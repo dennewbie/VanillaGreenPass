@@ -17,8 +17,8 @@
 #define INVALID_SENDER_ID_ERROR 201
 
 #define MONTHS_TO_WAIT_FOR_NEXT_VACCINATION 5
-#define HEALTH_CARD_NUMBER_LENGTH 20
-#define DATE_LENGTH 10
+#define HEALTH_CARD_NUMBER_LENGTH 21
+#define DATE_LENGTH 11
 #define MONTHS_IN_A_YEAR 12
 #define SECONDS_BETWEEN_TWO_VACCINES 60*60*24*30*5
 
@@ -27,18 +27,18 @@
 typedef struct {
     char healthCardNumber[HEALTH_CARD_NUMBER_LENGTH];
     char vaccineExpirationDate[DATE_LENGTH];
-    enum boolean requestResult;
+    unsigned short int requestResult;
 } centroVaccinaleReplyToClientCitizen;
 
 typedef struct {
     char healthCardNumber[HEALTH_CARD_NUMBER_LENGTH];
-    char vaccineExpirationDate[DATE_LENGTH];
+    char nowDate[DATE_LENGTH];
 } centroVaccinaleRequestToServerV;
 
 typedef struct {
     char healthCardNumber[HEALTH_CARD_NUMBER_LENGTH];
     char vaccineExpirationDate[DATE_LENGTH];
-    enum boolean requestResult;
+    unsigned short int requestResult;
 } serverV_ReplyToCentroVaccinale;
 
 enum sender {
@@ -51,5 +51,6 @@ void checkHealtCardNumber           (char * healthCardNumber);
 void retrieveConfigurationData      (const char * configFilePath, char ** configurationIP, unsigned short int * configurationPort);
 char * getVaccineExpirationDate     (void);
 char * getNowDate                   (void);
+int * createConnectionWithServerV   (void);
 
 #endif /* GreenPassUtility_h */

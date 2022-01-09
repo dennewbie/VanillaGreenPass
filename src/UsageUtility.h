@@ -107,6 +107,9 @@
 #define RENAME_SCOPE "rename"
 #define RENAME_ERROR 21
 
+#define DUP_SCOPE "dup"
+#define DUP_ERROR 22
+
 
 #define max(x, y) ( { typeof (x) x_ = (x); typeof (y) y_ = (y); x_ > y_ ? x_ : y_; } )
 
