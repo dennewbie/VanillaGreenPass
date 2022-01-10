@@ -1,4 +1,4 @@
-all: clientCitizen centroVaccinale serverV clientS clientT
+all: clean clientCitizen clientS clientT centroVaccinale serverV serverG
 	
 clientCitizen: clientCitizen.o GreenPassUtility.o NetWrapper.o UsageUtility.o
 	gcc clientCitizen.o GreenPassUtility.o NetWrapper.o UsageUtility.o -o clientCitizen
@@ -7,31 +7,40 @@ clientCitizen.o: clientCitizen.c clientCitizen.h GreenPassUtility.h NetWrapper.h
 	gcc -c clientCitizen.c
 	
 	
-centroVaccinale: centroVaccinale.o GreenPassUtility.o NetWrapper.o UsageUtility.o
-	gcc centroVaccinale.o GreenPassUtility.o NetWrapper.o UsageUtility.o  -o centroVaccinale
-	
-centroVaccinale.o: centroVaccinale.c centroVaccinale.h GreenPassUtility.h NetWrapper.h UsageUtility.h
-	gcc -c centroVaccinale.c
-	
-	
-serverV: serverV.o GreenPassUtility.o NetWrapper.o UsageUtility.o
-	gcc serverV.o GreenPassUtility.o NetWrapper.o UsageUtility.o  -o serverV
-
-serverV.o: serverV.c serverV.h GreenPassUtility.h NetWrapper.h UsageUtility.h
-	gcc -c serverV.c
-	
 clientS: clientS.o GreenPassUtility.o NetWrapper.o UsageUtility.o
 	gcc clientS.o GreenPassUtility.o NetWrapper.o UsageUtility.o -o clientS
 	
 clientS.o: clientS.c clientS.h GreenPassUtility.h NetWrapper.h UsageUtility.h
 	gcc -c clientS.c
 	
+	
 clientT: clientT.o GreenPassUtility.o NetWrapper.o UsageUtility.o
 	gcc clientT.o GreenPassUtility.o NetWrapper.o UsageUtility.o -o clientT
 	
 clientT.o: clientT.c clientT.h GreenPassUtility.h NetWrapper.h UsageUtility.h
 	gcc -c clientT.c
+	
+	
+centroVaccinale: centroVaccinale.o GreenPassUtility.o NetWrapper.o UsageUtility.o
+	gcc centroVaccinale.o GreenPassUtility.o NetWrapper.o UsageUtility.o  -o centroVaccinale
 
+centroVaccinale.o: centroVaccinale.c centroVaccinale.h GreenPassUtility.h NetWrapper.h UsageUtility.h
+	gcc -c centroVaccinale.c
+
+
+serverV: serverV.o GreenPassUtility.o NetWrapper.o UsageUtility.o
+	gcc serverV.o GreenPassUtility.o NetWrapper.o UsageUtility.o  -o serverV
+
+serverV.o: serverV.c serverV.h GreenPassUtility.h NetWrapper.h UsageUtility.h
+	gcc -c serverV.c
+	
+	
+serverG: serverG.o GreenPassUtility.o NetWrapper.o UsageUtility.o
+	gcc serverG.o GreenPassUtility.o NetWrapper.o UsageUtility.o  -o serverG
+
+serverG.o: serverG.c serverG.h GreenPassUtility.h NetWrapper.h UsageUtility.h
+	gcc -c serverG.c
+	
 	
 
 UsageUtility.o: UsageUtility.c UsageUtility.h
@@ -44,4 +53,10 @@ GreenPassUtility.o: GreenPassUtility.c NetWrapper.c UsageUtility.c GreenPassUtil
 	gcc -c GreenPassUtility.c NetWrapper.c UsageUtility.c
 	
 clean:
-	rm *.o all
+	rm -f *.o all
+	rm serverG
+	rm serverV
+	rm clientT
+	rm clientS
+	rm clientCitizen
+	rm centroVaccinale

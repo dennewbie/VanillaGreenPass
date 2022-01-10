@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		524FCA79278CD713007C4BCE /* serverG.c in Sources */ = {isa = PBXBuildFile; fileRef = 524FCA78278CD713007C4BCE /* serverG.c */; };
 		528FA0BE2789AD34004C7AA3 /* centroVaccinale.c in Sources */ = {isa = PBXBuildFile; fileRef = 528FA0BD2789AD34004C7AA3 /* centroVaccinale.c */; };
 		528FA0C42789EB38004C7AA3 /* serverV.c in Sources */ = {isa = PBXBuildFile; fileRef = 528FA0C22789EB38004C7AA3 /* serverV.c */; };
 		52B6726F2788BE06000E28FE /* Makefile in Sources */ = {isa = PBXBuildFile; fileRef = 52B6726E2788BE06000E28FE /* Makefile */; };
@@ -31,6 +32,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		524FCA77278CD713007C4BCE /* serverG.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = serverG.h; sourceTree = "<group>"; };
+		524FCA78278CD713007C4BCE /* serverG.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = serverG.c; sourceTree = "<group>"; };
 		525688B227889F5200D1FAE5 /* VanillaGreenPass */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = VanillaGreenPass; sourceTree = BUILT_PRODUCTS_DIR; };
 		528FA0BB2789A13D004C7AA3 /* conf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = conf; sourceTree = SOURCE_ROOT; };
 		528FA0BC2789AD34004C7AA3 /* centroVaccinale.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = centroVaccinale.h; sourceTree = "<group>"; };
@@ -102,14 +105,16 @@
 				52B6727A2788D31A000E28FE /* GreenPassUtility.c */,
 				52B672762788CD54000E28FE /* clientCitizen.h */,
 				52B672772788CD54000E28FE /* clientCitizen.c */,
-				528FA0BC2789AD34004C7AA3 /* centroVaccinale.h */,
-				528FA0BD2789AD34004C7AA3 /* centroVaccinale.c */,
-				528FA0C32789EB38004C7AA3 /* serverV.h */,
-				528FA0C22789EB38004C7AA3 /* serverV.c */,
 				52DA0844278CB4B400821548 /* clientS.h */,
 				52DA0845278CB4B400821548 /* clientS.c */,
 				52DA0847278CB7DD00821548 /* clientT.h */,
 				52DA0848278CB7DD00821548 /* clientT.c */,
+				528FA0BC2789AD34004C7AA3 /* centroVaccinale.h */,
+				528FA0BD2789AD34004C7AA3 /* centroVaccinale.c */,
+				524FCA77278CD713007C4BCE /* serverG.h */,
+				524FCA78278CD713007C4BCE /* serverG.c */,
+				528FA0C32789EB38004C7AA3 /* serverV.h */,
+				528FA0C22789EB38004C7AA3 /* serverV.c */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -177,6 +182,7 @@
 				52B6726F2788BE06000E28FE /* Makefile in Sources */,
 				528FA0BE2789AD34004C7AA3 /* centroVaccinale.c in Sources */,
 				52DA0846278CB4B400821548 /* clientS.c in Sources */,
+				524FCA79278CD713007C4BCE /* serverG.c in Sources */,
 				52B6727B2788D31A000E28FE /* GreenPassUtility.c in Sources */,
 				528FA0C42789EB38004C7AA3 /* serverV.c in Sources */,
 				52B672782788CD54000E28FE /* clientCitizen.c in Sources */,

@@ -7,12 +7,13 @@
 
 // TODO: strcpy does copy also null terminator character. Can remove control on every file.
 // TODO: change in-memory structure saving serverV: HCN:expDate:status
+// TODO: error handling su tutte le funzioni completo
 
 #include "centroVaccinale.h"
 
 int main (int argc, char * argv[]) {
     int serverV_SocketFileDescriptor, listenFileDescriptor, connectionFileDescriptor, enable = TRUE;
-    struct sockaddr_in serverV_Address, client, centroVaccinaleAddress;
+    struct sockaddr_in client, centroVaccinaleAddress;
     const char * expectedUsageMessage = "<Centro Vaccinale Port>";
     unsigned short int centroVaccinalePort;
     pid_t childPid;

@@ -40,12 +40,14 @@ int main (int argc, char * argv[]) {
 
 void checkGreenPass (int serverG_SocketFileDescriptor, const void * healthCardNumber, size_t nBytes) {
     ssize_t fullWriteReturnValue, fullReadReturnValue;
+    unsigned short int clientS_Sender = clientS_viaServerG_Sender;
     serverG_ReplyToClientS * newServerG_Reply = (serverG_ReplyToClientS *) calloc(1, sizeof(serverG_ReplyToClientS));
     if (!newServerG_Reply) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
     
     if (fprintf(stdout, "\n... Verifica in corso ...\n") < 0) raiseError(FPRINTF_SCOPE, FPRINTF_ERROR);
+    if ((fullWriteReturnValue = fullWrite(serverG_SocketFileDescriptor, (const void *) & clientS_Sender, (size_t) sizeof(clientS_Sender))) != 0) raiseError(FULL_WRITE_SCOPE, (int) fullWriteReturnValue);
     if ((fullWriteReturnValue = fullWrite(serverG_SocketFileDescriptor, healthCardNumber, nBytes)) != 0) raiseError(FULL_WRITE_SCOPE, (int) fullWriteReturnValue);
-    if ((fullReadReturnValue = fullRead(serverG_SocketFileDescriptor, newServerG_Reply, (size_t) sizeof(serverG_ReplyToClientS))) != 0) raiseError(FULL_READ_SCOPE, (int) fullReadReturnValue);
+    if ((fullReadReturnValue = fullRead(serverG_SocketFileDescriptor, (void *) newServerG_Reply, (size_t) sizeof(serverG_ReplyToClientS))) != 0) raiseError(FULL_READ_SCOPE, (int) fullReadReturnValue);
     
     if (newServerG_Reply->requestResult == FALSE) {
         if (fprintf(stdout, "\nLa tessera sanitaria immessa non risulta essere associata a un GreenPass attualmente valido.\nArrivederci.\n") < 0) raiseError(FPRINTF_SCOPE, FPRINTF_ERROR);

@@ -43,6 +43,7 @@ int main (int argc, char * argv[]) {
 
 void updateGreenPass (int serverG_SocketFileDescriptor, const void * healthCardNumber, const unsigned short int newGreenPassStatus) {
     ssize_t fullWriteReturnValue, fullReadReturnValue;
+    unsigned short int clientT_Sender = clientT_viaServerG_Sender;
     serverG_ReplyToClientT * newServerG_Reply = (serverG_ReplyToClientT *) calloc(1, sizeof(serverG_ReplyToClientT));
     clientT_RequestToServerG * newClientT_Request = (clientT_RequestToServerG *) calloc(1, sizeof(clientT_RequestToServerG));
     if (!newServerG_Reply) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
@@ -52,8 +53,9 @@ void updateGreenPass (int serverG_SocketFileDescriptor, const void * healthCardN
     newClientT_Request->updateValue = newGreenPassStatus;
     
     if (fprintf(stdout, "\n... Aggiornamento in corso ...\n") < 0) raiseError(FPRINTF_SCOPE, FPRINTF_ERROR);
-    if ((fullWriteReturnValue = fullWrite(serverG_SocketFileDescriptor, newClientT_Request, sizeof(clientT_RequestToServerG))) != 0) raiseError(FULL_WRITE_SCOPE, (int) fullWriteReturnValue);
-    if ((fullReadReturnValue = fullRead(serverG_SocketFileDescriptor, newServerG_Reply, (size_t) sizeof(serverG_ReplyToClientT))) != 0) raiseError(FULL_READ_SCOPE, (int) fullReadReturnValue);
+    if ((fullWriteReturnValue = fullWrite(serverG_SocketFileDescriptor, (const void *) & clientT_Sender, (size_t) sizeof(clientT_Sender))) != 0) raiseError(FULL_WRITE_SCOPE, (int) fullWriteReturnValue);
+    if ((fullWriteReturnValue = fullWrite(serverG_SocketFileDescriptor, (const void *) newClientT_Request, (size_t) sizeof(clientT_RequestToServerG))) != 0) raiseError(FULL_WRITE_SCOPE, (int) fullWriteReturnValue);
+    if ((fullReadReturnValue = fullRead(serverG_SocketFileDescriptor, (void *) newServerG_Reply, (size_t) sizeof(serverG_ReplyToClientT))) != 0) raiseError(FULL_READ_SCOPE, (int) fullReadReturnValue);
     
     if (newServerG_Reply->requestResult == FALSE) {
         if (fprintf(stdout, "\nL'aggiornamento del Green Pass associato alla tessera sanitaria %s, non e' andato a buon fine.\nArrivederci.\n", newServerG_Reply->healthCardNumber) < 0) raiseError(FPRINTF_SCOPE, FPRINTF_ERROR);
