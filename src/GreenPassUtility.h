@@ -16,6 +16,9 @@
 #define INVALID_SENDER_ID_SCOPE "invalidSenderID_serverV"
 #define INVALID_SENDER_ID_ERROR 201
 
+#define INVALID_UPDATE_STATUS_SCOPE "invalidGreenPassUpdateStatus"
+#define INVALID_UPDATE_STATUS_ERROR 202
+
 #define MONTHS_TO_WAIT_FOR_NEXT_VACCINATION 5
 #define HEALTH_CARD_NUMBER_LENGTH 21
 #define DATE_LENGTH 11
@@ -40,6 +43,21 @@ typedef struct {
     char vaccineExpirationDate[DATE_LENGTH];
     unsigned short int requestResult;
 } serverV_ReplyToCentroVaccinale;
+
+typedef struct {
+    char healthCardNumber[HEALTH_CARD_NUMBER_LENGTH];
+    unsigned short int requestResult;
+} serverG_ReplyToClientS;
+
+typedef struct {
+    char healthCardNumber[HEALTH_CARD_NUMBER_LENGTH];
+    unsigned short int updateValue;
+} clientT_RequestToServerG;
+
+typedef struct {
+    char healthCardNumber[HEALTH_CARD_NUMBER_LENGTH];
+    unsigned short int requestResult;
+} serverG_ReplyToClientT;
 
 enum sender {
     centroVaccinaleSender,

@@ -1,4 +1,4 @@
-all: clientCitizen centroVaccinale serverV
+all: clientCitizen centroVaccinale serverV clientS clientT
 	
 clientCitizen: clientCitizen.o GreenPassUtility.o NetWrapper.o UsageUtility.o
 	gcc clientCitizen.o GreenPassUtility.o NetWrapper.o UsageUtility.o -o clientCitizen
@@ -20,8 +20,18 @@ serverV: serverV.o GreenPassUtility.o NetWrapper.o UsageUtility.o
 serverV.o: serverV.c serverV.h GreenPassUtility.h NetWrapper.h UsageUtility.h
 	gcc -c serverV.c
 	
+clientS: clientS.o GreenPassUtility.o NetWrapper.o UsageUtility.o
+	gcc clientS.o GreenPassUtility.o NetWrapper.o UsageUtility.o -o clientS
 	
+clientS.o: clientS.c clientS.h GreenPassUtility.h NetWrapper.h UsageUtility.h
+	gcc -c clientS.c
 	
+clientT: clientT.o GreenPassUtility.o NetWrapper.o UsageUtility.o
+	gcc clientT.o GreenPassUtility.o NetWrapper.o UsageUtility.o -o clientT
+	
+clientT.o: clientT.c clientT.h GreenPassUtility.h NetWrapper.h UsageUtility.h
+	gcc -c clientT.c
+
 	
 
 UsageUtility.o: UsageUtility.c UsageUtility.h

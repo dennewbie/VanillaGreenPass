@@ -6,6 +6,7 @@
 //
 
 // TODO: strcpy does copy also null terminator character. Can remove control on every file.
+// TODO: change in-memory structure saving serverV: HCN:expDate:status
 
 #include "centroVaccinale.h"
 
