@@ -12,6 +12,7 @@ int main (int argc, char * argv[]) {
     struct sockaddr_in client, serverG_Address;
     const char * expectedUsageMessage = "<ServerG Port>";
     unsigned short int serverG_Port;
+    const char * configFilePathServerG = "../conf/serverG.conf";
     pid_t childPid;
     
     checkUsage(argc, (const char **) argv, 2, expectedUsageMessage);
@@ -41,7 +42,7 @@ int main (int argc, char * argv[]) {
             raiseError(FORK_SCOPE, FORK_ERROR);
         } else if (childPid == 0) {
             wclose(listenFileDescriptor);
-            serverV_SocketFileDescriptor = * createConnectionWithServerV();
+            serverV_SocketFileDescriptor = * createConnectionWithServerV(configFilePathServerG);
             
             switch (requestIdentifier) {
                 case clientS_viaServerG_Sender:

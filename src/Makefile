@@ -54,9 +54,9 @@ GreenPassUtility.o: GreenPassUtility.c NetWrapper.c UsageUtility.c GreenPassUtil
 	
 clean:
 	rm -f *.o all
-	rm serverG
-	rm serverV
-	rm clientT
-	rm clientS
-	rm clientCitizen
-	rm centroVaccinale
+	rm -f serverV
+	rm -f clientT
+	rm -f clientS
+	rm -f clientCitizen
+	rm -f centroVaccinale
+	rm -f serverG

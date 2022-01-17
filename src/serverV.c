@@ -96,6 +96,7 @@ void * centroVaccinaleRequestHandler (void * args) {
     if (!newServerV_Reply) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
     if (!tempCopiedDate) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
     
+    pthread_mutex_lock(& fileSystemAccessMutex);
     originalFilePointer = fopen(dataPath, "r");
     if (!originalFilePointer) raiseError(FOPEN_SCOPE, FOPEN_ERROR);
     tempFilePointer = fopen(tempDataPath, "w");
@@ -103,10 +104,9 @@ void * centroVaccinaleRequestHandler (void * args) {
     
     if ((fullReadReturnValue = fullRead(* threadConnectionFileDescriptor, (void *) newCentroVaccinaleRequest, (size_t) sizeof(centroVaccinaleRequestToServerV))) != 0) raiseError(FULL_READ_SCOPE, (int) fullReadReturnValue);
     strncpy(newServerV_Reply->healthCardNumber, newCentroVaccinaleRequest->healthCardNumber, HEALTH_CARD_NUMBER_LENGTH);
-    newServerV_Reply->healthCardNumber[HEALTH_CARD_NUMBER_LENGTH - 1] = '\0';
+//    newServerV_Reply->healthCardNumber[HEALTH_CARD_NUMBER_LENGTH - 1] = '\0';
     newServerV_Reply->requestResult = FALSE;
-    
-    pthread_mutex_lock(& fileSystemAccessMutex);
+
     // controllo 5 mesi non passati
     while ((getLineBytes = getline(& singleLine, & effectiveLineLength, originalFilePointer)) > 0) {
         if ((strncmp(newServerV_Reply->healthCardNumber, singleLine, HEALTH_CARD_NUMBER_LENGTH - 1)) == 0) {
@@ -148,7 +148,7 @@ void * centroVaccinaleRequestHandler (void * args) {
             }
         }
         
-        if (fprintf(tempFilePointer, "%s:%s\n", newServerV_Reply->healthCardNumber, newServerV_Reply->vaccineExpirationDate) < 0) raiseError(FPRINTF_SCOPE, FPRINTF_ERROR);
+        if (fprintf(tempFilePointer, "%s:%s:%s\n", newServerV_Reply->healthCardNumber, newServerV_Reply->vaccineExpirationDate, "1") < 0) raiseError(FPRINTF_SCOPE, FPRINTF_ERROR);
         updateFile(originalFilePointer, tempFilePointer);
     }
     

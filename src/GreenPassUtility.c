@@ -45,8 +45,8 @@ char * getVaccineExpirationDate () {
     
     char * vaccineExpirationDate = (char *) calloc(DATE_LENGTH, sizeof(char));
     if (!vaccineExpirationDate) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
-    sprintf(vaccineExpirationDate, "%02d-%02d-%d\n", timeInfo->tm_mday, timeInfo->tm_mon, timeInfo->tm_year + 1900);
-    vaccineExpirationDate[DATE_LENGTH - 1] = '\0';
+    sprintf(vaccineExpirationDate, "%02d-%02d-%d", timeInfo->tm_mday, timeInfo->tm_mon, timeInfo->tm_year + 1900);
+//    vaccineExpirationDate[DATE_LENGTH - 1] = '\0';
     return vaccineExpirationDate;
 }
 
@@ -56,19 +56,18 @@ char * getNowDate (void) {
     if (!nowDate) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
     struct tm * timeInfo = localtime(& tempTime);
     sprintf(nowDate, "%02d-%02d-%d\n", timeInfo->tm_mday, timeInfo->tm_mon + 1, timeInfo->tm_year + 1900);
-    nowDate[DATE_LENGTH - 1] = '\0';
+//    nowDate[DATE_LENGTH - 1] = '\0';
     return nowDate;
 }
 
-int * createConnectionWithServerV (void) {
-    const char * configFilePathCentroVaccinale = "../conf/centroVaccinale.conf";
+int * createConnectionWithServerV (const char * configFilePath) {
     struct sockaddr_in serverV_Address;
     char * stringServerV_AddressIP = NULL;
     unsigned short int serverV_Port;
     int * serverV_SocketFileDescriptor = (int *) calloc(1, sizeof(int));
     if(!serverV_SocketFileDescriptor) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
    
-    retrieveConfigurationData(configFilePathCentroVaccinale, & stringServerV_AddressIP, & serverV_Port);
+    retrieveConfigurationData(configFilePath, & stringServerV_AddressIP, & serverV_Port);
     // si imposta la comunicazione col serverV
     * serverV_SocketFileDescriptor = wsocket(AF_INET, SOCK_STREAM, 0);
     memset((void *) & serverV_Address, 0, sizeof(serverV_Address));

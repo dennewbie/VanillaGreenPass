@@ -19,7 +19,7 @@ int main (int argc, char * argv[]) {
     healthCardNumber = (char *) calloc(HEALTH_CARD_NUMBER_LENGTH, sizeof(char));
     if (!healthCardNumber) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
     strcpy(healthCardNumber, (const char *) argv[1]);
-    healthCardNumber[HEALTH_CARD_NUMBER_LENGTH - 1] = '\0';
+//    healthCardNumber[HEALTH_CARD_NUMBER_LENGTH - 1] = '\0';
     retrieveConfigurationData(configFilePath, & stringServerG_IP, & serverG_Port);
 
     serverG_SocketFileDescriptor = wsocket(AF_INET, SOCK_STREAM, 0);

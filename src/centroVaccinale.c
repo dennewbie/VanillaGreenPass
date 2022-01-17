@@ -5,8 +5,6 @@
 //  Created by Denny Caruso and Francesco Calcopietro on 08/01/22.
 //
 
-// TODO: strcpy does copy also null terminator character. Can remove control on every file.
-// TODO: change in-memory structure saving serverV: HCN:expDate:status
 // TODO: error handling su tutte le funzioni completo
 
 #include "centroVaccinale.h"
@@ -15,6 +13,7 @@ int main (int argc, char * argv[]) {
     int serverV_SocketFileDescriptor, listenFileDescriptor, connectionFileDescriptor, enable = TRUE;
     struct sockaddr_in client, centroVaccinaleAddress;
     const char * expectedUsageMessage = "<Centro Vaccinale Port>";
+    const char * configFilePathCentroVaccinale = "../conf/centroVaccinale.conf";
     unsigned short int centroVaccinalePort;
     pid_t childPid;
     
@@ -41,7 +40,7 @@ int main (int argc, char * argv[]) {
             raiseError(FORK_SCOPE, FORK_ERROR);
         } else if (childPid == 0) {
             wclose(listenFileDescriptor);
-            serverV_SocketFileDescriptor = * createConnectionWithServerV();
+            serverV_SocketFileDescriptor = * createConnectionWithServerV(configFilePathCentroVaccinale);
             clientCitizenRequestHandler(connectionFileDescriptor, serverV_SocketFileDescriptor);
             wclose(connectionFileDescriptor);
             wclose(serverV_SocketFileDescriptor);
@@ -70,8 +69,8 @@ void clientCitizenRequestHandler (int connectionFileDescriptor, int serverV_Sock
     if ((fullReadReturnValue = fullRead(connectionFileDescriptor, (void *) buffer, (size_t) HEALTH_CARD_NUMBER_LENGTH * sizeof(char))) != 0) raiseError(FULL_READ_SCOPE, (int) fullReadReturnValue);
     strncpy((char *) newCentroVaccinaleRequest->healthCardNumber, (const char *)  buffer, HEALTH_CARD_NUMBER_LENGTH);
     strncpy((char *) newCentroVaccinaleRequest->nowDate, (const char *) getNowDate(), DATE_LENGTH);
-    newCentroVaccinaleRequest->healthCardNumber[HEALTH_CARD_NUMBER_LENGTH - 1] = '\0';
-    newCentroVaccinaleRequest->nowDate[DATE_LENGTH - 1] = '\0';
+//    newCentroVaccinaleRequest->healthCardNumber[HEALTH_CARD_NUMBER_LENGTH - 1] = '\0';
+//    newCentroVaccinaleRequest->nowDate[DATE_LENGTH - 1] = '\0';
     
     if ((fullWriteReturnValue = fullWrite(serverV_SocketFileDescriptor, (const void *) & centroVaccinaleSender, (size_t) sizeof(unsigned short int))) != 0) raiseError(FULL_WRITE_SCOPE, (int) fullWriteReturnValue);
     if ((fullWriteReturnValue = fullWrite(serverV_SocketFileDescriptor, (const void *) newCentroVaccinaleRequest, (size_t) sizeof(centroVaccinaleRequestToServerV))) != 0) raiseError(FULL_WRITE_SCOPE, (int) fullWriteReturnValue);
@@ -79,8 +78,8 @@ void clientCitizenRequestHandler (int connectionFileDescriptor, int serverV_Sock
     
     strncpy(newCentroVaccinaleReply->healthCardNumber, (const char *) newServerV_Reply->healthCardNumber, HEALTH_CARD_NUMBER_LENGTH);
     strncpy(newCentroVaccinaleReply->vaccineExpirationDate, (const char *) newServerV_Reply->vaccineExpirationDate, DATE_LENGTH);
-    newCentroVaccinaleReply->healthCardNumber[HEALTH_CARD_NUMBER_LENGTH - 1] = '\0';
-    newCentroVaccinaleReply->vaccineExpirationDate[DATE_LENGTH - 1] = '\0';
+//    newCentroVaccinaleReply->healthCardNumber[HEALTH_CARD_NUMBER_LENGTH - 1] = '\0';
+//    newCentroVaccinaleReply->vaccineExpirationDate[DATE_LENGTH - 1] = '\0';
     
     newCentroVaccinaleReply->requestResult = newServerV_Reply->requestResult == TRUE ? TRUE : FALSE;
     if ((fullWriteReturnValue = fullWrite(connectionFileDescriptor, (const void *) newCentroVaccinaleReply, (size_t) sizeof(centroVaccinaleReplyToClientCitizen))) != 0) raiseError(FULL_WRITE_SCOPE, (int) fullWriteReturnValue);
