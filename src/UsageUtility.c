@@ -19,6 +19,11 @@ void raiseError (char * errorScope, int exitCode) {
     exit(exitCode);
 }
 
+void threadRaiseError (char * errorScope, int exitCode) {
+    if (fprintf(stderr, "Scope: %s - Error #%d\n", errorScope, exitCode) < 0) raiseError(FPRINTF_SCOPE, FPRINTF_ERROR);
+    pthread_exit(NULL);
+}
+
 void raiseError_herror (char * errorScope, int exitCode) {
     herror(errorScope);
     exit(exitCode);

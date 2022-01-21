@@ -7,6 +7,7 @@
 
 // TODO: error handling su tutte le funzioni completo
 // TODO: strncmp considerare se HCN_LENGTH - 2 o - 1 in serverV
+// TODO: improve memory handling (date, stringhe getline, etc in tutti i file)
 
 #include "centroVaccinale.h"
 
