@@ -9,6 +9,7 @@
 // TODO: strncmp considerare se HCN_LENGTH - 2 o - 1 in serverV
 // TODO: improve memory handling (date, stringhe getline, etc in tutti i file)
 // TODO: Refactoring completo codice
+// TODO: createConnectionWithServerV(...) can return an int and not an int *
 
 #include "centroVaccinale.h"
 
@@ -34,7 +35,7 @@ int main (int argc, char * argv[]) {
     centroVaccinaleAddress.sin_addr.s_addr = htonl(INADDR_ANY);
     centroVaccinaleAddress.sin_port        = htons(centroVaccinalePort);
     wbind(listenFileDescriptor, (struct sockaddr *) & centroVaccinaleAddress, (socklen_t) sizeof(centroVaccinaleAddress));
-    wlisten(listenFileDescriptor, QUEUE_SIZE);
+    wlisten(listenFileDescriptor, LISTEN_QUEUE_SIZE);
     
     while (TRUE) {
         socklen_t clientAddressLength = (socklen_t) sizeof(client);

@@ -2,13 +2,16 @@
 //  clientCitizen.h
 //  VanillaGreenPass
 //
-//  Created by Denny Caruso and Francesco Calcopietro on 07/01/22.
+//  Created by Denny Caruso on 07/01/22.
 //
 
+// CHECKED
 #ifndef clientCitizen_h
 #define clientCitizen_h
 
 #include "GreenPassUtility.h"
+
+# define CLIENT_CITIZEN_ARGS_NO 2
 
 
 

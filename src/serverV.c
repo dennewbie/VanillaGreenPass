@@ -32,7 +32,7 @@ int main (int argc, char * argv[]) {
     serverV_Address.sin_addr.s_addr = htonl(INADDR_ANY);
     serverV_Address.sin_port        = htons(serverV_Port);
     wbind(listenFileDescriptor, (struct sockaddr *) & serverV_Address, (socklen_t) sizeof(serverV_Address));
-    wlisten(listenFileDescriptor, QUEUE_SIZE);
+    wlisten(listenFileDescriptor, LISTEN_QUEUE_SIZE);
     
     if (pthread_mutex_init(& fileSystemAccessMutex, NULL) != 0) raiseError(PTHREAD_MUTEX_INIT_SCOPE, PTHREAD_MUTEX_INIT_ERROR);
     if (pthread_mutex_init(& connectionFileDescriptorMutex, NULL) != 0) raiseError(PTHREAD_MUTEX_INIT_SCOPE, PTHREAD_MUTEX_INIT_ERROR);
@@ -377,7 +377,7 @@ void * clientT_viaServerG_RequestHandler(void * args) {
     size_t effectiveLineLength = 0;
     char * singleLine = NULL, * vaccineExpirationDateString;
     enum boolean healthCardNumberWasFound = FALSE;
-    FILE * originalFilePointer, * tempFilePointer;
+    FILE * originalFilePointer, * tempFilePointer = NULL;
     
     char healthCardNumber[HEALTH_CARD_NUMBER_LENGTH];
     serverG_RequestToServerV_onBehalfOfClientT * newServerG_Request = (serverG_RequestToServerV_onBehalfOfClientT *) calloc(1, sizeof(serverG_RequestToServerV_onBehalfOfClientT));

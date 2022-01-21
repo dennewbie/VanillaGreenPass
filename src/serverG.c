@@ -28,7 +28,7 @@ int main (int argc, char * argv[]) {
     serverG_Address.sin_addr.s_addr = htonl(INADDR_ANY);
     serverG_Address.sin_port        = htons(serverG_Port);
     wbind(listenFileDescriptor, (struct sockaddr *) & serverG_Address, (socklen_t) sizeof(serverG_Address));
-    wlisten(listenFileDescriptor, QUEUE_SIZE);
+    wlisten(listenFileDescriptor, LISTEN_QUEUE_SIZE);
     
     while (TRUE) {
         unsigned short int requestIdentifier;
@@ -109,7 +109,7 @@ void clientT_RequestHandler (int connectionFileDescriptor, int serverV_SocketFil
     if ((fullReadReturnValue = fullRead(serverV_SocketFileDescriptor, (void *) newServerV_Reply, (size_t) sizeof(serverV_ReplyToServerG_clientS))) != 0) raiseError(FULL_READ_SCOPE, (int) fullReadReturnValue);
     
     strncpy(newServerG_Reply->healthCardNumber, newServerV_Reply->healthCardNumber, HEALTH_CARD_NUMBER_LENGTH);
-    newServerG_Reply->requestResult = newServerV_Reply->updateResult;
+    newServerG_Reply->updateResult = newServerV_Reply->updateResult;
     if ((fullWriteReturnValue = fullWrite(connectionFileDescriptor, (const void *) newServerG_Reply, (size_t) sizeof(serverG_ReplyToClientS))) != 0) raiseError(FULL_WRITE_SCOPE, (int) fullWriteReturnValue);
     free(newClientT_Request);
     free(newServerG_Reply);

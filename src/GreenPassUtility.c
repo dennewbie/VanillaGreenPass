@@ -7,11 +7,13 @@
 
 #include "GreenPassUtility.h"
 
+// CHECKED
 void checkHealtCardNumber (char * healthCardNumber) {
     size_t healthCardNumberLength = strlen(healthCardNumber);
     if (healthCardNumberLength + 1 != HEALTH_CARD_NUMBER_LENGTH) raiseError(CHECK_HEALTH_CARD_NUMBER_SCOPE, CHECK_HEALTH_CARD_NUMBER_ERROR);
 }
 
+// CHECKED
 void retrieveConfigurationData (const char * configFilePath, char ** configurationIP, unsigned short int * configurationPort) {
     FILE * filePointer;
     size_t IPlength = 0, portLength = 0;
@@ -20,13 +22,14 @@ void retrieveConfigurationData (const char * configFilePath, char ** configurati
     
     filePointer = fopen(configFilePath, "r");
     if (!filePointer) raiseError(FOPEN_SCOPE, FOPEN_ERROR);
-    if ((getLineBytes = getline(& tempStringConfigurationIP, & IPlength, filePointer)) < 0) raiseError(GETLINE_SCOPE, GETLINE_ERROR);
-    *configurationIP = (char *) calloc(strlen(tempStringConfigurationIP) - 1, sizeof(char));
+    if ((getLineBytes = getline((char ** restrict) & tempStringConfigurationIP, (size_t * restrict) & IPlength, (FILE * restrict) filePointer)) == -1) raiseError(GETLINE_SCOPE, GETLINE_ERROR);
+    * configurationIP = (char *) calloc(strlen(tempStringConfigurationIP) - 1, sizeof(char));
     if (! *configurationIP) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
-    strncpy(*configurationIP, tempStringConfigurationIP, strlen(tempStringConfigurationIP) - 1);
-    checkIP(*configurationIP);
-    if ((getLineBytes = getline(& stringServerAddressPort, & portLength, filePointer)) < 0) raiseError(GETLINE_SCOPE, GETLINE_ERROR);
-    *configurationPort = (unsigned short int) strtoul(stringServerAddressPort, (char **) NULL, 10);
+    strncpy(* configurationIP, tempStringConfigurationIP, strlen(tempStringConfigurationIP) - 1);
+    checkIP(* configurationIP);
+    if ((getLineBytes = getline((char ** restrict) & stringServerAddressPort, (size_t * restrict) & portLength, (FILE * restrict) filePointer)) == -1) raiseError(GETLINE_SCOPE, GETLINE_ERROR);
+    * configurationPort = (unsigned short int) strtoul((const char * restrict) stringServerAddressPort, (char ** restrict) NULL, 10);
+    if (configurationPort == 0 && (errno == EINVAL || errno == ERANGE)) raiseError(STRTOUL_SCOPE, STRTOUL_ERROR);
     fclose(filePointer);
 }
 

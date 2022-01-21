@@ -51,6 +51,11 @@ typedef struct {
 
 typedef struct {
     char healthCardNumber[HEALTH_CARD_NUMBER_LENGTH];
+    unsigned short int updateValue;
+} serverG_RequestToServerV_onBehalfOfClientT;
+
+typedef struct {
+    char healthCardNumber[HEALTH_CARD_NUMBER_LENGTH];
     unsigned short int updateResult;
 } serverV_ReplyToServerG_clientT;
 
@@ -66,13 +71,8 @@ typedef struct {
 
 typedef struct {
     char healthCardNumber[HEALTH_CARD_NUMBER_LENGTH];
-    unsigned short int requestResult;
+    unsigned short int updateResult;
 } serverG_ReplyToClientT;
-
-typedef struct {
-    char healthCardNumber[HEALTH_CARD_NUMBER_LENGTH];
-    unsigned short int updateValue;
-} serverG_RequestToServerV_onBehalfOfClientT;
 
 enum sender {
     centroVaccinaleSender,
