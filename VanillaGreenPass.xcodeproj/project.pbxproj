@@ -32,6 +32,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		52109E01279B7732000E70CE /* bin */ = {isa = PBXFileReference; lastKnownFileType = folder; path = bin; sourceTree = "<group>"; };
 		524FCA77278CD713007C4BCE /* serverG.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = serverG.h; sourceTree = "<group>"; };
 		524FCA78278CD713007C4BCE /* serverG.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = serverG.c; sourceTree = "<group>"; };
 		525688B227889F5200D1FAE5 /* VanillaGreenPass */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = VanillaGreenPass; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -54,7 +55,6 @@
 		52DA0845278CB4B400821548 /* clientS.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = clientS.c; sourceTree = "<group>"; };
 		52DA0847278CB7DD00821548 /* clientT.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = clientT.h; sourceTree = "<group>"; };
 		52DA0848278CB7DD00821548 /* clientT.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = clientT.c; sourceTree = "<group>"; };
-		52DF597E2788A1B100E5F55A /* bin */ = {isa = PBXFileReference; lastKnownFileType = folder; path = bin; sourceTree = "<group>"; };
 		52DF597F2788A1B100E5F55A /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		52DF59802788A1B100E5F55A /* doc */ = {isa = PBXFileReference; lastKnownFileType = folder; path = doc; sourceTree = "<group>"; };
 		52DF59812788A1B100E5F55A /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
@@ -75,8 +75,8 @@
 			isa = PBXGroup;
 			children = (
 				525688B427889F5200D1FAE5 /* src */,
+				52109E01279B7732000E70CE /* bin */,
 				528FA0BB2789A13D004C7AA3 /* conf */,
-				52DF597E2788A1B100E5F55A /* bin */,
 				528FA0C5278A4D84004C7AA3 /* data */,
 				52DF59802788A1B100E5F55A /* doc */,
 				52DF59812788A1B100E5F55A /* LICENSE */,
