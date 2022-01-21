@@ -46,10 +46,10 @@ int main (int argc, char * argv[]) {
             
             switch (requestIdentifier) {
                 case clientS_viaServerG_Sender:
-                    // stuff
+                    clientS_RequestHandler(connectionFileDescriptor, serverV_SocketFileDescriptor);
                     break;
                 case clientT_viaServerG_Sender:
-                    // stuff
+                    clientT_RequestHandler(connectionFileDescriptor, serverV_SocketFileDescriptor);
                     break;
                 default:
                     raiseError(INVALID_SENDER_ID_SCOPE, INVALID_SENDER_ID_ERROR);
@@ -69,9 +69,50 @@ int main (int argc, char * argv[]) {
 }
 
 void clientS_RequestHandler (int connectionFileDescriptor, int serverV_SocketFileDescriptor) {
+    char healthCardNumber[HEALTH_CARD_NUMBER_LENGTH];
+    ssize_t fullWriteReturnValue, fullReadReturnValue;
+    unsigned short int clientS_viaServerG_SenderID = clientS_viaServerG_Sender;
+    serverG_ReplyToClientS * newServerG_Reply = (serverG_ReplyToClientS *) calloc(1, sizeof(serverG_ReplyToClientS));
+    serverV_ReplyToServerG_clientS * newServerV_Reply = (serverV_ReplyToServerG_clientS *) calloc(1, sizeof(serverV_ReplyToServerG_clientS));
+    if (!newServerG_Reply) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
+    if (!newServerV_Reply) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
     
+    if ((fullReadReturnValue = fullRead(connectionFileDescriptor, (void *) healthCardNumber, (size_t) sizeof(char) * HEALTH_CARD_NUMBER_LENGTH)) != 0) raiseError(FULL_READ_SCOPE, (int) fullReadReturnValue);
+    if ((fullWriteReturnValue = fullWrite(serverV_SocketFileDescriptor, (const void *) & clientS_viaServerG_SenderID, (size_t) sizeof(clientS_viaServerG_SenderID))) != 0) raiseError(FULL_WRITE_SCOPE, (int) fullWriteReturnValue);
+    if ((fullWriteReturnValue = fullWrite(serverV_SocketFileDescriptor, (const void *) healthCardNumber, (size_t) sizeof(char) * HEALTH_CARD_NUMBER_LENGTH)) != 0) raiseError(FULL_WRITE_SCOPE, (int) fullWriteReturnValue);
+    if ((fullReadReturnValue = fullRead(serverV_SocketFileDescriptor, (void *) newServerV_Reply, (size_t) sizeof(serverV_ReplyToServerG_clientS))) != 0) raiseError(FULL_READ_SCOPE, (int) fullReadReturnValue);
+    
+    strncpy(newServerG_Reply->healthCardNumber, newServerV_Reply->healthCardNumber, HEALTH_CARD_NUMBER_LENGTH);
+    newServerG_Reply->requestResult = newServerV_Reply->requestResult;
+    if ((fullWriteReturnValue = fullWrite(connectionFileDescriptor, (const void *) newServerG_Reply, (size_t) sizeof(serverG_ReplyToClientS))) != 0) raiseError(FULL_WRITE_SCOPE, (int) fullWriteReturnValue);
+    free(newServerV_Reply);
+    free(newServerG_Reply);
 }
 
 void clientT_RequestHandler (int connectionFileDescriptor, int serverV_SocketFileDescriptor) {
+    unsigned short int clientT_viaServerG_SenderID = clientT_viaServerG_Sender;
+    ssize_t fullWriteReturnValue, fullReadReturnValue;
+    clientT_RequestToServerG * newClientT_Request = (clientT_RequestToServerG *) calloc(1, sizeof(clientT_RequestToServerG));
+    serverG_ReplyToClientT * newServerG_Reply = (serverG_ReplyToClientT *) calloc(1, sizeof(serverG_ReplyToClientT));
+    serverG_RequestToServerV_onBehalfOfClientT * newServerG_Request = (serverG_RequestToServerV_onBehalfOfClientT *) calloc(1, sizeof(serverG_RequestToServerV_onBehalfOfClientT));
+    serverV_ReplyToServerG_clientT * newServerV_Reply = (serverV_ReplyToServerG_clientT *) calloc(1, sizeof(serverV_ReplyToServerG_clientT));
+    if (!newServerG_Reply) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
+    if (!newServerV_Reply) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
+    if (!newClientT_Request) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
+    if (!newServerG_Request) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
     
+    if ((fullReadReturnValue = fullRead(connectionFileDescriptor, (void *) newClientT_Request, (size_t) sizeof(clientT_RequestToServerG))) != 0) raiseError(FULL_READ_SCOPE, (int) fullReadReturnValue);
+    strncpy(newServerG_Request->healthCardNumber, newClientT_Request->healthCardNumber, HEALTH_CARD_NUMBER_LENGTH);
+    newServerG_Request->updateValue = newClientT_Request->updateValue;
+    if ((fullWriteReturnValue = fullWrite(serverV_SocketFileDescriptor, (const void *) & clientT_viaServerG_SenderID, (size_t) sizeof(clientT_viaServerG_SenderID))) != 0) raiseError(FULL_WRITE_SCOPE, (int) fullWriteReturnValue);
+    if ((fullWriteReturnValue = fullWrite(serverV_SocketFileDescriptor, (const void *) newServerG_Request, (size_t) sizeof(serverG_RequestToServerV_onBehalfOfClientT))) != 0) raiseError(FULL_WRITE_SCOPE, (int) fullWriteReturnValue);
+    if ((fullReadReturnValue = fullRead(serverV_SocketFileDescriptor, (void *) newServerV_Reply, (size_t) sizeof(serverV_ReplyToServerG_clientS))) != 0) raiseError(FULL_READ_SCOPE, (int) fullReadReturnValue);
+    
+    strncpy(newServerG_Reply->healthCardNumber, newServerV_Reply->healthCardNumber, HEALTH_CARD_NUMBER_LENGTH);
+    newServerG_Reply->requestResult = newServerV_Reply->updateResult;
+    if ((fullWriteReturnValue = fullWrite(connectionFileDescriptor, (const void *) newServerG_Reply, (size_t) sizeof(serverG_ReplyToClientS))) != 0) raiseError(FULL_WRITE_SCOPE, (int) fullWriteReturnValue);
+    free(newClientT_Request);
+    free(newServerG_Reply);
+    free(newServerG_Request);
+    free(newServerV_Reply);
 }

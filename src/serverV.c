@@ -54,15 +54,16 @@ int main (int argc, char * argv[]) {
         pthread_mutex_lock(& connectionFileDescriptorMutex);
         if ((*threadConnectionFileDescriptor = dup(connectionFileDescriptor)) < 0) raiseError(DUP_SCOPE, DUP_ERROR);
         pthread_mutex_unlock(& connectionFileDescriptorMutex);
-        
         switch (requestIdentifier) {
             case centroVaccinaleSender:
                 // passo sempre lo stesso TID. Non mi interessa fare join
                 if ((threadCreationReturnValue = pthread_create(& singleTID, & attr, & centroVaccinaleRequestHandler, threadConnectionFileDescriptor)) != 0) raiseError(PTHREAD_CREATE_SCOPE, PTHREAD_CREATE_ERROR);
                 break;
             case clientS_viaServerG_Sender:
+                if ((threadCreationReturnValue = pthread_create(& singleTID, & attr, & clientS_viaServerG_RequestHandler, threadConnectionFileDescriptor)) != 0) raiseError(PTHREAD_CREATE_SCOPE, PTHREAD_CREATE_ERROR);
                 break;
             case clientT_viaServerG_Sender:
+                if ((threadCreationReturnValue = pthread_create(& singleTID, & attr, & clientT_viaServerG_RequestHandler, threadConnectionFileDescriptor)) != 0) raiseError(PTHREAD_CREATE_SCOPE, PTHREAD_CREATE_ERROR);
                 break;
             default:
                 raiseError(INVALID_SENDER_ID_SCOPE, INVALID_SENDER_ID_ERROR);
@@ -96,16 +97,16 @@ void * centroVaccinaleRequestHandler (void * args) {
     if (!newServerV_Reply) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
     if (!tempCopiedDate) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
     
+    if ((fullReadReturnValue = fullRead(* threadConnectionFileDescriptor, (void *) newCentroVaccinaleRequest, (size_t) sizeof(centroVaccinaleRequestToServerV))) != 0) raiseError(FULL_READ_SCOPE, (int) fullReadReturnValue);
+    strncpy(newServerV_Reply->healthCardNumber, newCentroVaccinaleRequest->healthCardNumber, HEALTH_CARD_NUMBER_LENGTH);
+//    newServerV_Reply->healthCardNumber[HEALTH_CARD_NUMBER_LENGTH - 1] = '\0';
+    newServerV_Reply->requestResult = FALSE;
+    
     pthread_mutex_lock(& fileSystemAccessMutex);
     originalFilePointer = fopen(dataPath, "r");
     if (!originalFilePointer) raiseError(FOPEN_SCOPE, FOPEN_ERROR);
     tempFilePointer = fopen(tempDataPath, "w");
     if (!tempFilePointer) raiseError(FOPEN_SCOPE, FOPEN_ERROR);
-    
-    if ((fullReadReturnValue = fullRead(* threadConnectionFileDescriptor, (void *) newCentroVaccinaleRequest, (size_t) sizeof(centroVaccinaleRequestToServerV))) != 0) raiseError(FULL_READ_SCOPE, (int) fullReadReturnValue);
-    strncpy(newServerV_Reply->healthCardNumber, newCentroVaccinaleRequest->healthCardNumber, HEALTH_CARD_NUMBER_LENGTH);
-//    newServerV_Reply->healthCardNumber[HEALTH_CARD_NUMBER_LENGTH - 1] = '\0';
-    newServerV_Reply->requestResult = FALSE;
 
     // controllo 5 mesi non passati
     while ((getLineBytes = getline(& singleLine, & effectiveLineLength, originalFilePointer)) > 0) {
@@ -154,8 +155,8 @@ void * centroVaccinaleRequestHandler (void * args) {
     
     if ((fullWriteReturnValue = fullWrite(* threadConnectionFileDescriptor, (const void *) newServerV_Reply, (size_t) sizeof(serverV_ReplyToCentroVaccinale))) != 0) raiseError(FULL_WRITE_SCOPE, (int) fullWriteReturnValue);
     
-    pthread_mutex_unlock(& fileSystemAccessMutex);
     fclose(originalFilePointer);
+    pthread_mutex_unlock(& fileSystemAccessMutex);
     fclose(tempFilePointer);
     free(tempCopiedDate);
     free(newCentroVaccinaleRequest);
@@ -172,4 +173,77 @@ void updateFile(FILE * originalFilePointer, FILE * tempFilePointer) {
     tempFilePointer = fopen(tempDataPath, "w+");
     if (!tempFilePointer) raiseError(FOPEN_SCOPE, FOPEN_ERROR);
     fclose(tempFilePointer);
+}
+
+void * clientS_viaServerG_RequestHandler(void * args) {
+    int * threadConnectionFileDescriptor = (int *) args;
+    ssize_t fullWriteReturnValue, fullReadReturnValue, getLineBytes;
+    size_t effectiveLineLength = 0;
+    char * singleLine = NULL, * vaccineExpirationDateString, * nowDateString;
+    struct tm firstTime, secondTime;
+    time_t vaccineExpirationDate, nowDate;
+    double seconds;
+    char greenPassStatusString[2];
+    unsigned short int greenPassStatus;
+    enum boolean isGreenPassExpired = TRUE, healthCardNumberWasFound = FALSE, isGreenPassValid = FALSE;
+    FILE * originalFilePointer;
+    
+    char healthCardNumber[HEALTH_CARD_NUMBER_LENGTH];
+    serverV_ReplyToServerG_clientS * newServerV_Reply = (serverV_ReplyToServerG_clientS *) calloc(1, sizeof(serverV_ReplyToServerG_clientS));
+    vaccineExpirationDateString = (char *) calloc(DATE_LENGTH, sizeof(char));
+    if (!newServerV_Reply) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
+    if (!vaccineExpirationDateString) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
+
+    if ((fullReadReturnValue = fullRead(* threadConnectionFileDescriptor, (void *) healthCardNumber, (size_t) HEALTH_CARD_NUMBER_LENGTH * sizeof(char))) != 0) raiseError(FULL_READ_SCOPE, (int) fullReadReturnValue);
+    strncpy(newServerV_Reply->healthCardNumber, healthCardNumber, HEALTH_CARD_NUMBER_LENGTH);
+    newServerV_Reply->requestResult = FALSE;
+    pthread_mutex_lock(& fileSystemAccessMutex);
+    originalFilePointer = fopen(dataPath, "r");
+    if (!originalFilePointer) raiseError(FOPEN_SCOPE, FOPEN_ERROR);
+    
+    // controllo 5 mesi non passati
+    while ((getLineBytes = getline(& singleLine, & effectiveLineLength, originalFilePointer)) > 0) {
+        if ((strncmp(newServerV_Reply->healthCardNumber, singleLine, HEALTH_CARD_NUMBER_LENGTH - 1)) == 0) {
+            healthCardNumberWasFound = TRUE;
+            strncpy(vaccineExpirationDateString, singleLine + HEALTH_CARD_NUMBER_LENGTH, DATE_LENGTH);
+            memset(& firstTime, 0, sizeof(struct tm));
+            memset(& secondTime, 0, sizeof(struct tm));
+                       
+            firstTime.tm_mday = ((int) strtol(& vaccineExpirationDateString[0], (char **) NULL, 10));
+            firstTime.tm_mon = ((int) strtol(& vaccineExpirationDateString[3], (char **) NULL, 10) - 1);
+            firstTime.tm_year = ((int) strtol(& vaccineExpirationDateString[6], (char **) NULL, 10) - 1900);
+            vaccineExpirationDate = mktime(& firstTime);
+            
+            nowDateString = getNowDate();
+            secondTime.tm_mday = ((int) strtol(& nowDateString[0], (char **) NULL, 10));
+            secondTime.tm_mon = ((int) strtol(& nowDateString[3], (char **) NULL, 10) - 1);
+            secondTime.tm_year = ((int) strtol(& nowDateString[6], (char **) NULL, 10) - 1900);
+            nowDate = mktime(& secondTime);
+            
+            seconds = difftime(vaccineExpirationDate, nowDate);
+            if (seconds <= SECONDS_BETWEEN_TWO_VACCINES && seconds > 0) isGreenPassExpired = FALSE;
+            
+            strncpy(greenPassStatusString, singleLine + HEALTH_CARD_NUMBER_LENGTH + DATE_LENGTH, 1);
+            greenPassStatus = (unsigned short int) strtoul(greenPassStatusString, (char **) NULL, 10);
+            if (greenPassStatus) isGreenPassValid = TRUE;
+            break;
+        }
+    }
+
+    if (healthCardNumberWasFound) {
+        if (isGreenPassValid && !isGreenPassExpired) newServerV_Reply->requestResult = TRUE;
+    }
+    
+    if ((fullWriteReturnValue = fullWrite(* threadConnectionFileDescriptor, (const void *) newServerV_Reply, (size_t) sizeof(serverV_ReplyToCentroVaccinale))) != 0) raiseError(FULL_WRITE_SCOPE, (int) fullWriteReturnValue);
+    
+    fclose(originalFilePointer);
+    pthread_mutex_unlock(& fileSystemAccessMutex);
+    free(vaccineExpirationDateString);
+    free(newServerV_Reply);
+    free(threadConnectionFileDescriptor);
+    pthread_exit(NULL);
+}
+
+void * clientT_viaServerG_RequestHandler(void * args) {
+    pthread_exit(NULL);
 }

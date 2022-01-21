@@ -6,6 +6,7 @@
 //
 
 // TODO: error handling su tutte le funzioni completo
+// TODO: strncmp considerare se HCN_LENGTH - 2 o - 1 in serverV
 
 #include "centroVaccinale.h"
 
@@ -64,7 +65,7 @@ void clientCitizenRequestHandler (int connectionFileDescriptor, int serverV_Sock
     
     char buffer[HEALTH_CARD_NUMBER_LENGTH];
     ssize_t fullWriteReturnValue, fullReadReturnValue;
-    unsigned short int centroVaccinaleSender = centroVaccinaleSender;
+    unsigned short int centroVaccinaleSenderID = centroVaccinaleSender;
     
     if ((fullReadReturnValue = fullRead(connectionFileDescriptor, (void *) buffer, (size_t) HEALTH_CARD_NUMBER_LENGTH * sizeof(char))) != 0) raiseError(FULL_READ_SCOPE, (int) fullReadReturnValue);
     strncpy((char *) newCentroVaccinaleRequest->healthCardNumber, (const char *)  buffer, HEALTH_CARD_NUMBER_LENGTH);
@@ -72,7 +73,7 @@ void clientCitizenRequestHandler (int connectionFileDescriptor, int serverV_Sock
 //    newCentroVaccinaleRequest->healthCardNumber[HEALTH_CARD_NUMBER_LENGTH - 1] = '\0';
 //    newCentroVaccinaleRequest->nowDate[DATE_LENGTH - 1] = '\0';
     
-    if ((fullWriteReturnValue = fullWrite(serverV_SocketFileDescriptor, (const void *) & centroVaccinaleSender, (size_t) sizeof(unsigned short int))) != 0) raiseError(FULL_WRITE_SCOPE, (int) fullWriteReturnValue);
+    if ((fullWriteReturnValue = fullWrite(serverV_SocketFileDescriptor, (const void *) & centroVaccinaleSenderID, (size_t) sizeof(unsigned short int))) != 0) raiseError(FULL_WRITE_SCOPE, (int) fullWriteReturnValue);
     if ((fullWriteReturnValue = fullWrite(serverV_SocketFileDescriptor, (const void *) newCentroVaccinaleRequest, (size_t) sizeof(centroVaccinaleRequestToServerV))) != 0) raiseError(FULL_WRITE_SCOPE, (int) fullWriteReturnValue);
     if ((fullReadReturnValue = fullRead(serverV_SocketFileDescriptor, (void *) newServerV_Reply, (size_t) sizeof(serverV_ReplyToCentroVaccinale))) != 0) raiseError(FULL_READ_SCOPE, (int) fullReadReturnValue);
     
