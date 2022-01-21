@@ -11,6 +11,7 @@
 int main (int argc, char * argv[]) {
     char * healthCardNumber;
     int centroVaccinaleSocketFileDescriptor = setupClientCitizen(argc, argv, & healthCardNumber);
+    healthCardNumber[HEALTH_CARD_NUMBER_LENGTH - 1] = '\0';
     getVaccination(centroVaccinaleSocketFileDescriptor, (const void *) healthCardNumber, (size_t) sizeof(char) * HEALTH_CARD_NUMBER_LENGTH);
     wclose(centroVaccinaleSocketFileDescriptor);
     free(healthCardNumber);
@@ -20,23 +21,21 @@ int main (int argc, char * argv[]) {
 int setupClientCitizen (int argc, char * argv[], char ** healthCardNumber) {
     int centroVaccinaleSocketFileDescriptor;
     struct sockaddr_in centroVaccinaleAddress;
-    const char * expectedUsageMessage = "<Numero Tessera Sanitaria>", * configFilePath = "../conf/clientCitizen.conf";
     char * stringCentroVaccinaleAddressIP = NULL;
     unsigned short int centroVaccinalePort;
-    
     checkUsage(argc, (const char **) argv, CLIENT_CITIZEN_ARGS_NO, expectedUsageMessage);
     checkHealtCardNumber(argv[1]);
     * healthCardNumber = (char *) calloc(HEALTH_CARD_NUMBER_LENGTH, sizeof(char));
     if (! * healthCardNumber) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
-    strcpy(* healthCardNumber, (const char *) argv[1]);
+    strncpy(* healthCardNumber, (const char *) argv[1], HEALTH_CARD_NUMBER_LENGTH - 1);
     retrieveConfigurationData(configFilePath, & stringCentroVaccinaleAddressIP, & centroVaccinalePort);
-
+    
     centroVaccinaleSocketFileDescriptor = wsocket(AF_INET, SOCK_STREAM, 0);
     memset((void *) & centroVaccinaleAddress, 0, sizeof(centroVaccinaleAddress));
     centroVaccinaleAddress.sin_family = AF_INET;
     centroVaccinaleAddress.sin_port   = htons(centroVaccinalePort);
     if (inet_pton(AF_INET, (const char * restrict) stringCentroVaccinaleAddressIP, (void *) & centroVaccinaleAddress.sin_addr) <= 0) raiseError(INET_PTON_SCOPE, INET_PTON_ERROR);
-
+    
     wconnect(centroVaccinaleSocketFileDescriptor, (struct sockaddr *) & centroVaccinaleAddress, (socklen_t) sizeof(centroVaccinaleAddress));
     if (fprintf(stdout, "\nBenvenuti al Centro Vaccinale\nNumero tessera sanitaria: %s\n\n... A breve ti verra' inoculato il vaccino...\n", * healthCardNumber) < 0) raiseError(FPRINTF_SCOPE, FPRINTF_ERROR);
     free(stringCentroVaccinaleAddressIP);

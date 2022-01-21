@@ -11,6 +11,7 @@
 int main (int argc, char * argv[]) {
     char * healthCardNumber;
     int serverG_SocketFileDescriptor = setupClientS(argc, argv, & healthCardNumber);
+    healthCardNumber[HEALTH_CARD_NUMBER_LENGTH - 1] = '\0';
     checkGreenPass(serverG_SocketFileDescriptor, (const void *) healthCardNumber, (size_t) sizeof(char) * HEALTH_CARD_NUMBER_LENGTH);
     wclose(serverG_SocketFileDescriptor);
     free(healthCardNumber);
@@ -19,7 +20,6 @@ int main (int argc, char * argv[]) {
 
 int setupClientS (int argc, char * argv[], char ** healthCardNumber) {
     struct sockaddr_in serverG_Address;
-    const char * expectedUsageMessage = "<Numero Tessera Sanitaria da Controllare>", * configFilePath = "../conf/clientS.conf";
     char * stringServerG_IP = NULL;
     unsigned short int serverG_Port;
     int serverG_SocketFileDescriptor;
@@ -28,15 +28,15 @@ int setupClientS (int argc, char * argv[], char ** healthCardNumber) {
     checkHealtCardNumber(argv[1]);
     * healthCardNumber = (char *) calloc(HEALTH_CARD_NUMBER_LENGTH, sizeof(char));
     if (! * healthCardNumber) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
-    strcpy(* healthCardNumber, (const char *) argv[1]);
+    strncpy(* healthCardNumber, (const char *) argv[1], HEALTH_CARD_NUMBER_LENGTH - 1);
+    
     retrieveConfigurationData(configFilePath, & stringServerG_IP, & serverG_Port);
-
     serverG_SocketFileDescriptor = wsocket(AF_INET, SOCK_STREAM, 0);
     memset((void *) & serverG_Address, 0, sizeof(serverG_Address));
     serverG_Address.sin_family = AF_INET;
     serverG_Address.sin_port   = htons(serverG_Port);
     if (inet_pton(AF_INET, (const char * restrict) stringServerG_IP, (void *) & serverG_Address.sin_addr) <= 0) raiseError(INET_PTON_SCOPE, INET_PTON_ERROR);
-
+    
     wconnect(serverG_SocketFileDescriptor, (struct sockaddr *) & serverG_Address, (socklen_t) sizeof(serverG_Address));
     if (fprintf(stdout, "\nVerifica GreenPass\nNumero tessera sanitaria: %s\n\n... A breve verra' mostrato se il GreenPass inserito risulta essere valido...\n", * healthCardNumber) < 0) raiseError(FPRINTF_SCOPE, FPRINTF_ERROR);
     free(stringServerG_IP);

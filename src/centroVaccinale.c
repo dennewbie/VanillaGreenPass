@@ -17,7 +17,6 @@
 int main (int argc, char * argv[]) {
     int serverV_SocketFileDescriptor, listenFileDescriptor, connectionFileDescriptor, enable = TRUE;
     struct sockaddr_in client, centroVaccinaleAddress;
-    const char * expectedUsageMessage = "<Centro Vaccinale Port>", * configFilePathCentroVaccinale = "../conf/centroVaccinale.conf";
     unsigned short int centroVaccinalePort;
     pid_t childPid;
     
@@ -30,7 +29,7 @@ int main (int argc, char * argv[]) {
     if (setsockopt(listenFileDescriptor, SOL_SOCKET, SO_REUSEADDR, & enable, (socklen_t) sizeof(int))  == -1) raiseError(SET_SOCK_OPT_SCOPE, SET_SOCK_OPT_ERROR);
     memset((void *) & centroVaccinaleAddress, 0, sizeof(centroVaccinaleAddress));
     memset((void *) & client, 0, sizeof(client));
-
+    
     centroVaccinaleAddress.sin_family      = AF_INET;
     centroVaccinaleAddress.sin_addr.s_addr = htonl(INADDR_ANY);
     centroVaccinaleAddress.sin_port        = htons(centroVaccinalePort);

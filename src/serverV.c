@@ -137,6 +137,7 @@ void * centroVaccinaleRequestHandler (void * args) {
     while ((getLineBytes = getline(& singleLine, & effectiveLineLength, originalFilePointer)) > 0) {
         if ((strncmp(newServerV_Reply->healthCardNumber, singleLine, HEALTH_CARD_NUMBER_LENGTH - 1)) == 0) {
             healthCardNumberWasFound = TRUE;
+            // fix here strncpy
             strncpy(tempCopiedDate, (const char *) singleLine + HEALTH_CARD_NUMBER_LENGTH, DATE_LENGTH - 1);
             memset(& firstTime, 0, sizeof(struct tm));
             memset(& secondTime, 0, sizeof(struct tm));
@@ -153,6 +154,7 @@ void * centroVaccinaleRequestHandler (void * args) {
             
             seconds = difftime(scheduledVaccinationDate, requestVaccinationDate);
             if (seconds <= SECONDS_BETWEEN_TWO_VACCINES && seconds > 0) {
+                // fix here strncpy
                 strncpy((char *) newServerV_Reply->vaccineExpirationDate, (const char *) tempCopiedDate, DATE_LENGTH);
                 isVaccineBlocked = TRUE;
             }
@@ -324,6 +326,7 @@ void * clientS_viaServerG_RequestHandler(void * args) {
     while ((getLineBytes = getline(& singleLine, & effectiveLineLength, originalFilePointer)) > 0) {
         if ((strncmp(newServerV_Reply->healthCardNumber, singleLine, HEALTH_CARD_NUMBER_LENGTH - 1)) == 0) {
             healthCardNumberWasFound = TRUE;
+            // fix here strncpy
             strncpy(vaccineExpirationDateString, (const char *) singleLine + HEALTH_CARD_NUMBER_LENGTH, DATE_LENGTH - 1);
             memset(& firstTime, 0, sizeof(struct tm));
             memset(& secondTime, 0, sizeof(struct tm));
@@ -342,6 +345,7 @@ void * clientS_viaServerG_RequestHandler(void * args) {
             seconds = difftime(vaccineExpirationDate, nowDate);
             if (seconds <= SECONDS_BETWEEN_TWO_VACCINES && seconds > 0) isGreenPassExpired = FALSE;
             
+            // fix here strncpy
             strncpy((char *) greenPassStatusString, (const char *) singleLine + HEALTH_CARD_NUMBER_LENGTH + DATE_LENGTH, 1);
             greenPassStatus = (unsigned short int) strtoul(greenPassStatusString, (char **) NULL, 10);
             if (greenPassStatus) isGreenPassValid = TRUE;
@@ -426,6 +430,7 @@ void * clientT_viaServerG_RequestHandler(void * args) {
     while ((getLineBytes = getline(& singleLine, & effectiveLineLength, originalFilePointer)) > 0) {
         if ((strncmp(newServerV_Reply->healthCardNumber, singleLine, HEALTH_CARD_NUMBER_LENGTH - 1)) == 0) {
             healthCardNumberWasFound = TRUE;
+            // fix here strncpy
             strncpy(vaccineExpirationDateString, (const char *) singleLine + HEALTH_CARD_NUMBER_LENGTH, DATE_LENGTH - 1);
             break;
         }

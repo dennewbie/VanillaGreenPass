@@ -15,6 +15,8 @@
 
 
 
+const char * expectedUsageMessage = "<Numero Tessera Sanitaria> <Nuovo Stato Green Pass (0 = NON VALIDO / 1 = VALIDO)>", * configFilePath = "../conf/clientT.conf";
+
 int setupClientT            (int argc,                          char * argv[],                  char ** healthCaardNumber,                  int * newGreenPassStatus);
 void updateGreenPass        (int serverG_SocketFileDescriptor,  const void * healthCardNumber,  const unsigned short int newGreenPassStatus                         );
 

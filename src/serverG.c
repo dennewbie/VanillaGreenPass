@@ -11,7 +11,6 @@
 int main (int argc, char * argv[]) {
     int serverV_SocketFileDescriptor, listenFileDescriptor, connectionFileDescriptor, enable = TRUE;
     struct sockaddr_in client, serverG_Address;
-    const char * expectedUsageMessage = "<ServerG Port>", * configFilePathServerG = "../conf/serverG.conf";
     unsigned short int serverG_Port;
     pid_t childPid;
     
