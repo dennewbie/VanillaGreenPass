@@ -10,6 +10,8 @@
 
 #include "GreenPassUtility.h"
 
+#define SERVER_G_ARGS_NO 2
+
 
 
 void clientS_RequestHandler     (int connectionFileDescriptor, int serverV_SocketFileDescriptor);

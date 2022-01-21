@@ -10,17 +10,17 @@
 int main (int argc, char * argv[]) {
     int serverV_SocketFileDescriptor, listenFileDescriptor, connectionFileDescriptor, enable = TRUE;
     struct sockaddr_in client, serverG_Address;
-    const char * expectedUsageMessage = "<ServerG Port>";
+    const char * expectedUsageMessage = "<ServerG Port>", * configFilePathServerG = "../conf/serverG.conf";
     unsigned short int serverG_Port;
-    const char * configFilePathServerG = "../conf/serverG.conf";
     pid_t childPid;
     
-    checkUsage(argc, (const char **) argv, 2, expectedUsageMessage);
-    serverG_Port = (unsigned short int) strtoul(argv[1], (char **) NULL, 10);
+    checkUsage(argc, (const char **) argv, SERVER_G_ARGS_NO, expectedUsageMessage);
+    serverG_Port = (unsigned short int) strtoul((const char * restrict) argv[1], (char ** restrict) NULL, 10);
+    if (serverG_Port == 0 && (errno == EINVAL || errno == ERANGE)) raiseError(STRTOUL_SCOPE, STRTOUL_ERROR);
     
     // si imposta la comunicazione col clientS e clientT
     listenFileDescriptor = wsocket(AF_INET, SOCK_STREAM, 0);
-    if (setsockopt(listenFileDescriptor, SOL_SOCKET, SO_REUSEADDR, & enable, (socklen_t) sizeof(int)) < 0) raiseError(SET_SOCK_OPT_SCOPE, SET_SOCK_OPT_ERROR);
+    if (setsockopt(listenFileDescriptor, SOL_SOCKET, SO_REUSEADDR, & enable, (socklen_t) sizeof(int)) == -1) raiseError(SET_SOCK_OPT_SCOPE, SET_SOCK_OPT_ERROR);
     memset((void *) & serverG_Address, 0, sizeof(serverG_Address));
     memset((void *) & client, 0, sizeof(client));
     
@@ -35,14 +35,13 @@ int main (int argc, char * argv[]) {
         ssize_t fullReadReturnValue;
         socklen_t clientAddressLength = (socklen_t) sizeof(client);
         connectionFileDescriptor = waccept(listenFileDescriptor, (struct sockaddr *) & client, (socklen_t *) & clientAddressLength);
+        if ((fullReadReturnValue = fullRead(connectionFileDescriptor, (void *) & requestIdentifier, sizeof(unsigned short int))) != 0) raiseError(FULL_READ_SCOPE, (int) fullReadReturnValue);
         
-        if ((fullReadReturnValue = fullRead(connectionFileDescriptor, (void *) & requestIdentifier, (size_t) sizeof(unsigned short int))) != 0) raiseError(FULL_READ_SCOPE, (int) fullReadReturnValue);
-        
-        if ((childPid = fork()) < 0) {
+        if ((childPid = fork()) == -1) {
             raiseError(FORK_SCOPE, FORK_ERROR);
         } else if (childPid == 0) {
             wclose(listenFileDescriptor);
-            serverV_SocketFileDescriptor = * createConnectionWithServerV(configFilePathServerG);
+            serverV_SocketFileDescriptor = createConnectionWithServerV(configFilePathServerG);
             
             switch (requestIdentifier) {
                 case clientS_viaServerG_Sender:
@@ -77,14 +76,14 @@ void clientS_RequestHandler (int connectionFileDescriptor, int serverV_SocketFil
     if (!newServerG_Reply) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
     if (!newServerV_Reply) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
     
-    if ((fullReadReturnValue = fullRead(connectionFileDescriptor, (void *) healthCardNumber, (size_t) sizeof(char) * HEALTH_CARD_NUMBER_LENGTH)) != 0) raiseError(FULL_READ_SCOPE, (int) fullReadReturnValue);
-    if ((fullWriteReturnValue = fullWrite(serverV_SocketFileDescriptor, (const void *) & clientS_viaServerG_SenderID, (size_t) sizeof(clientS_viaServerG_SenderID))) != 0) raiseError(FULL_WRITE_SCOPE, (int) fullWriteReturnValue);
-    if ((fullWriteReturnValue = fullWrite(serverV_SocketFileDescriptor, (const void *) healthCardNumber, (size_t) sizeof(char) * HEALTH_CARD_NUMBER_LENGTH)) != 0) raiseError(FULL_WRITE_SCOPE, (int) fullWriteReturnValue);
-    if ((fullReadReturnValue = fullRead(serverV_SocketFileDescriptor, (void *) newServerV_Reply, (size_t) sizeof(serverV_ReplyToServerG_clientS))) != 0) raiseError(FULL_READ_SCOPE, (int) fullReadReturnValue);
+    if ((fullReadReturnValue = fullRead(connectionFileDescriptor, (void *) healthCardNumber, sizeof(char) * HEALTH_CARD_NUMBER_LENGTH)) != 0) raiseError(FULL_READ_SCOPE, (int) fullReadReturnValue);
+    if ((fullWriteReturnValue = fullWrite(serverV_SocketFileDescriptor, (const void *) & clientS_viaServerG_SenderID, sizeof(clientS_viaServerG_SenderID))) != 0) raiseError(FULL_WRITE_SCOPE, (int) fullWriteReturnValue);
+    if ((fullWriteReturnValue = fullWrite(serverV_SocketFileDescriptor, (const void *) healthCardNumber, sizeof(char) * HEALTH_CARD_NUMBER_LENGTH)) != 0) raiseError(FULL_WRITE_SCOPE, (int) fullWriteReturnValue);
+    if ((fullReadReturnValue = fullRead(serverV_SocketFileDescriptor, (void *) newServerV_Reply, sizeof(* newServerV_Reply))) != 0) raiseError(FULL_READ_SCOPE, (int) fullReadReturnValue);
     
-    strncpy(newServerG_Reply->healthCardNumber, newServerV_Reply->healthCardNumber, HEALTH_CARD_NUMBER_LENGTH);
+    strncpy((char *) newServerG_Reply->healthCardNumber, (const char *) newServerV_Reply->healthCardNumber, HEALTH_CARD_NUMBER_LENGTH);
     newServerG_Reply->requestResult = newServerV_Reply->requestResult;
-    if ((fullWriteReturnValue = fullWrite(connectionFileDescriptor, (const void *) newServerG_Reply, (size_t) sizeof(serverG_ReplyToClientS))) != 0) raiseError(FULL_WRITE_SCOPE, (int) fullWriteReturnValue);
+    if ((fullWriteReturnValue = fullWrite(connectionFileDescriptor, (const void *) newServerG_Reply, sizeof(serverG_ReplyToClientS))) != 0) raiseError(FULL_WRITE_SCOPE, (int) fullWriteReturnValue);
     free(newServerV_Reply);
     free(newServerG_Reply);
 }
@@ -101,16 +100,16 @@ void clientT_RequestHandler (int connectionFileDescriptor, int serverV_SocketFil
     if (!newClientT_Request) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
     if (!newServerG_Request) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
     
-    if ((fullReadReturnValue = fullRead(connectionFileDescriptor, (void *) newClientT_Request, (size_t) sizeof(clientT_RequestToServerG))) != 0) raiseError(FULL_READ_SCOPE, (int) fullReadReturnValue);
-    strncpy(newServerG_Request->healthCardNumber, newClientT_Request->healthCardNumber, HEALTH_CARD_NUMBER_LENGTH);
+    if ((fullReadReturnValue = fullRead(connectionFileDescriptor, (void *) newClientT_Request, (size_t) sizeof(* newClientT_Request))) != 0) raiseError(FULL_READ_SCOPE, (int) fullReadReturnValue);
+    strncpy((char *) newServerG_Request->healthCardNumber, (const char *) newClientT_Request->healthCardNumber, HEALTH_CARD_NUMBER_LENGTH);
     newServerG_Request->updateValue = newClientT_Request->updateValue;
-    if ((fullWriteReturnValue = fullWrite(serverV_SocketFileDescriptor, (const void *) & clientT_viaServerG_SenderID, (size_t) sizeof(clientT_viaServerG_SenderID))) != 0) raiseError(FULL_WRITE_SCOPE, (int) fullWriteReturnValue);
-    if ((fullWriteReturnValue = fullWrite(serverV_SocketFileDescriptor, (const void *) newServerG_Request, (size_t) sizeof(serverG_RequestToServerV_onBehalfOfClientT))) != 0) raiseError(FULL_WRITE_SCOPE, (int) fullWriteReturnValue);
-    if ((fullReadReturnValue = fullRead(serverV_SocketFileDescriptor, (void *) newServerV_Reply, (size_t) sizeof(serverV_ReplyToServerG_clientS))) != 0) raiseError(FULL_READ_SCOPE, (int) fullReadReturnValue);
+    if ((fullWriteReturnValue = fullWrite(serverV_SocketFileDescriptor, (const void *) & clientT_viaServerG_SenderID, sizeof(clientT_viaServerG_SenderID))) != 0) raiseError(FULL_WRITE_SCOPE, (int) fullWriteReturnValue);
+    if ((fullWriteReturnValue = fullWrite(serverV_SocketFileDescriptor, (const void *) newServerG_Request, sizeof(* newServerG_Request))) != 0) raiseError(FULL_WRITE_SCOPE, (int) fullWriteReturnValue);
+    if ((fullReadReturnValue = fullRead(serverV_SocketFileDescriptor, (void *) newServerV_Reply, sizeof(* newServerV_Reply))) != 0) raiseError(FULL_READ_SCOPE, (int) fullReadReturnValue);
     
-    strncpy(newServerG_Reply->healthCardNumber, newServerV_Reply->healthCardNumber, HEALTH_CARD_NUMBER_LENGTH);
+    strncpy((char *) newServerG_Reply->healthCardNumber, (const char *) newServerV_Reply->healthCardNumber, HEALTH_CARD_NUMBER_LENGTH);
     newServerG_Reply->updateResult = newServerV_Reply->updateResult;
-    if ((fullWriteReturnValue = fullWrite(connectionFileDescriptor, (const void *) newServerG_Reply, (size_t) sizeof(serverG_ReplyToClientS))) != 0) raiseError(FULL_WRITE_SCOPE, (int) fullWriteReturnValue);
+    if ((fullWriteReturnValue = fullWrite(connectionFileDescriptor, (const void *) newServerG_Reply, sizeof(* newServerG_Reply))) != 0) raiseError(FULL_WRITE_SCOPE, (int) fullWriteReturnValue);
     free(newClientT_Request);
     free(newServerG_Reply);
     free(newServerG_Request);

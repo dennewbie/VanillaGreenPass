@@ -30,6 +30,7 @@ ssize_t fullRead (int fileDescriptor, void * buffer, size_t nBytes) {
     ssize_t nBytesRead;
     
     while (nBytesLeft > 0) {
+        // == -1
         if ((nBytesRead = read(fileDescriptor, buffer, nBytesLeft)) < 0) {
             if (errno == EINTR) {
                 continue;
@@ -52,6 +53,7 @@ ssize_t fullWrite (int fileDescriptor, const void * buffer, size_t nBytes) {
     ssize_t nBytesWrite;
     
     while (nBytesLeft > 0) {
+        // == -1
         if ((nBytesWrite = write(fileDescriptor, buffer, nBytesLeft)) < 0) {
             if (errno == EINTR) {
                 continue;

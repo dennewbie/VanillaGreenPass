@@ -18,14 +18,13 @@ int main (int argc, char * argv[]) {
     pthread_attr_t attr;
     unsigned short int serverV_Port;
     struct sockaddr_in serverV_Address, client;
-    //    const char * configFilePathServerV = "../conf/serverV.conf";
     const char * expectedUsageMessage = "<ServerV Port>";
     
     checkUsage(argc, (const char **) argv, 2, expectedUsageMessage);
     serverV_Port = (unsigned short int) strtoul(argv[1], (char **) NULL, 10);
     
     listenFileDescriptor = wsocket(AF_INET, SOCK_STREAM, 0);
-    if (setsockopt(listenFileDescriptor, SOL_SOCKET, SO_REUSEADDR, & enable, (socklen_t) sizeof(int)) < 0) raiseError(SET_SOCK_OPT_SCOPE, SET_SOCK_OPT_ERROR);
+    if (setsockopt(listenFileDescriptor, SOL_SOCKET, SO_REUSEADDR, & enable, (socklen_t) sizeof(int))  == -1) raiseError(SET_SOCK_OPT_SCOPE, SET_SOCK_OPT_ERROR);
     memset((void *) & serverV_Address, 0, sizeof(serverV_Address));
     memset((void *) & client, 0, sizeof(client));
     serverV_Address.sin_family      = AF_INET;
@@ -116,7 +115,7 @@ void * centroVaccinaleRequestHandler (void * args) {
         free(threadConnectionFileDescriptor);
         threadRaiseError(FULL_READ_SCOPE, (int) fullReadReturnValue);
     }
-    strncpy(newServerV_Reply->healthCardNumber, newCentroVaccinaleRequest->healthCardNumber, HEALTH_CARD_NUMBER_LENGTH);
+    strncpy((char *) newServerV_Reply->healthCardNumber, (const char *) newCentroVaccinaleRequest->healthCardNumber, HEALTH_CARD_NUMBER_LENGTH);
     //    newServerV_Reply->healthCardNumber[HEALTH_CARD_NUMBER_LENGTH - 1] = '\0';
     newServerV_Reply->requestResult = FALSE;
     
@@ -138,7 +137,7 @@ void * centroVaccinaleRequestHandler (void * args) {
     while ((getLineBytes = getline(& singleLine, & effectiveLineLength, originalFilePointer)) > 0) {
         if ((strncmp(newServerV_Reply->healthCardNumber, singleLine, HEALTH_CARD_NUMBER_LENGTH - 1)) == 0) {
             healthCardNumberWasFound = TRUE;
-            strncpy(tempCopiedDate, singleLine + HEALTH_CARD_NUMBER_LENGTH, DATE_LENGTH - 1);
+            strncpy(tempCopiedDate, (const char *) singleLine + HEALTH_CARD_NUMBER_LENGTH, DATE_LENGTH - 1);
             memset(& firstTime, 0, sizeof(struct tm));
             memset(& secondTime, 0, sizeof(struct tm));
             
@@ -154,7 +153,7 @@ void * centroVaccinaleRequestHandler (void * args) {
             
             seconds = difftime(scheduledVaccinationDate, requestVaccinationDate);
             if (seconds <= SECONDS_BETWEEN_TWO_VACCINES) {
-                strncpy(newServerV_Reply->vaccineExpirationDate, tempCopiedDate, DATE_LENGTH);
+                strncpy((char *) newServerV_Reply->vaccineExpirationDate, (const char *) tempCopiedDate, DATE_LENGTH);
                 isVaccineBlocked = TRUE;
             }
             break;
@@ -162,7 +161,7 @@ void * centroVaccinaleRequestHandler (void * args) {
     }
     
     if ((!isVaccineBlocked && healthCardNumberWasFound) || (!isVaccineBlocked && !healthCardNumberWasFound)) {
-        strncpy(newServerV_Reply->vaccineExpirationDate, getVaccineExpirationDate(), DATE_LENGTH);
+        strncpy((char *) newServerV_Reply->vaccineExpirationDate, (const char *) getVaccineExpirationDate(), DATE_LENGTH);
         newServerV_Reply->requestResult = TRUE;
         fclose(originalFilePointer);
         originalFilePointer = fopen(dataPath, "r");
@@ -309,7 +308,7 @@ void * clientS_viaServerG_RequestHandler(void * args) {
         threadRaiseError(FULL_READ_SCOPE, (int) fullReadReturnValue);
     }
     
-    strncpy(newServerV_Reply->healthCardNumber, healthCardNumber, HEALTH_CARD_NUMBER_LENGTH);
+    strncpy((char *) newServerV_Reply->healthCardNumber, (const char *) healthCardNumber, HEALTH_CARD_NUMBER_LENGTH);
     newServerV_Reply->requestResult = FALSE;
     pthread_mutex_lock(& fileSystemAccessMutex);
     originalFilePointer = fopen(dataPath, "r");
@@ -325,7 +324,7 @@ void * clientS_viaServerG_RequestHandler(void * args) {
     while ((getLineBytes = getline(& singleLine, & effectiveLineLength, originalFilePointer)) > 0) {
         if ((strncmp(newServerV_Reply->healthCardNumber, singleLine, HEALTH_CARD_NUMBER_LENGTH - 1)) == 0) {
             healthCardNumberWasFound = TRUE;
-            strncpy(vaccineExpirationDateString, singleLine + HEALTH_CARD_NUMBER_LENGTH, DATE_LENGTH - 1);
+            strncpy(vaccineExpirationDateString, (const char *) singleLine + HEALTH_CARD_NUMBER_LENGTH, DATE_LENGTH - 1);
             memset(& firstTime, 0, sizeof(struct tm));
             memset(& secondTime, 0, sizeof(struct tm));
             
@@ -343,7 +342,7 @@ void * clientS_viaServerG_RequestHandler(void * args) {
             seconds = difftime(vaccineExpirationDate, nowDate);
             if (seconds <= SECONDS_BETWEEN_TWO_VACCINES && seconds > 0) isGreenPassExpired = FALSE;
             
-            strncpy(greenPassStatusString, singleLine + HEALTH_CARD_NUMBER_LENGTH + DATE_LENGTH, 1);
+            strncpy((char *) greenPassStatusString, (const char *) singleLine + HEALTH_CARD_NUMBER_LENGTH + DATE_LENGTH, 1);
             greenPassStatus = (unsigned short int) strtoul(greenPassStatusString, (char **) NULL, 10);
             if (greenPassStatus) isGreenPassValid = TRUE;
             break;
@@ -409,8 +408,8 @@ void * clientT_viaServerG_RequestHandler(void * args) {
         threadRaiseError(FULL_READ_SCOPE, (int) fullReadReturnValue);
     }
     
-    strncpy(healthCardNumber, newServerG_Request->healthCardNumber, HEALTH_CARD_NUMBER_LENGTH);
-    strncpy(newServerV_Reply->healthCardNumber, healthCardNumber, HEALTH_CARD_NUMBER_LENGTH);
+    strncpy(healthCardNumber, (const char *) newServerG_Request->healthCardNumber, HEALTH_CARD_NUMBER_LENGTH);
+    strncpy((char *) newServerV_Reply->healthCardNumber, (const char *) healthCardNumber, HEALTH_CARD_NUMBER_LENGTH);
     newServerV_Reply->updateResult = FALSE;
     
     pthread_mutex_lock(& fileSystemAccessMutex);
@@ -427,7 +426,7 @@ void * clientT_viaServerG_RequestHandler(void * args) {
     while ((getLineBytes = getline(& singleLine, & effectiveLineLength, originalFilePointer)) > 0) {
         if ((strncmp(newServerV_Reply->healthCardNumber, singleLine, HEALTH_CARD_NUMBER_LENGTH - 1)) == 0) {
             healthCardNumberWasFound = TRUE;
-            strncpy(vaccineExpirationDateString, singleLine + HEALTH_CARD_NUMBER_LENGTH, DATE_LENGTH - 1);
+            strncpy(vaccineExpirationDateString, (const char *) singleLine + HEALTH_CARD_NUMBER_LENGTH, DATE_LENGTH - 1);
             break;
         }
     }

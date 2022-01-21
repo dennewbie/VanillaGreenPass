@@ -2,7 +2,7 @@
 //  GreenPassUtility.c
 //  VanillaGreenPass
 //
-//  Created by Denny Caruso and Francesco Calcopietro on 07/01/22.
+//  Created by Denny Caruso on 07/01/22.
 //
 
 #include "GreenPassUtility.h"
@@ -25,7 +25,7 @@ void retrieveConfigurationData (const char * configFilePath, char ** configurati
     if ((getLineBytes = getline((char ** restrict) & tempStringConfigurationIP, (size_t * restrict) & IPlength, (FILE * restrict) filePointer)) == -1) raiseError(GETLINE_SCOPE, GETLINE_ERROR);
     * configurationIP = (char *) calloc(strlen(tempStringConfigurationIP) - 1, sizeof(char));
     if (! *configurationIP) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
-    strncpy(* configurationIP, tempStringConfigurationIP, strlen(tempStringConfigurationIP) - 1);
+    strncpy(* configurationIP, (const char *) tempStringConfigurationIP, strlen(tempStringConfigurationIP) - 1);
     checkIP(* configurationIP);
     if ((getLineBytes = getline((char ** restrict) & stringServerAddressPort, (size_t * restrict) & portLength, (FILE * restrict) filePointer)) == -1) raiseError(GETLINE_SCOPE, GETLINE_ERROR);
     * configurationPort = (unsigned short int) strtoul((const char * restrict) stringServerAddressPort, (char ** restrict) NULL, 10);
@@ -33,7 +33,7 @@ void retrieveConfigurationData (const char * configFilePath, char ** configurati
     fclose(filePointer);
 }
 
-char * getVaccineExpirationDate () {
+char * getVaccineExpirationDate (void) {
     struct tm * timeInfo;
     time_t systemTime;
     time(& systemTime);
@@ -63,21 +63,21 @@ char * getNowDate (void) {
     return nowDate;
 }
 
-int * createConnectionWithServerV (const char * configFilePath) {
+// CHECKED
+int createConnectionWithServerV (const char * configFilePath) {
     struct sockaddr_in serverV_Address;
     char * stringServerV_AddressIP = NULL;
     unsigned short int serverV_Port;
-    int * serverV_SocketFileDescriptor = (int *) calloc(1, sizeof(int));
-    if(!serverV_SocketFileDescriptor) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
+    int serverV_SocketFileDescriptor;
    
     retrieveConfigurationData(configFilePath, & stringServerV_AddressIP, & serverV_Port);
     // si imposta la comunicazione col serverV
-    * serverV_SocketFileDescriptor = wsocket(AF_INET, SOCK_STREAM, 0);
+    serverV_SocketFileDescriptor = wsocket(AF_INET, SOCK_STREAM, 0);
     memset((void *) & serverV_Address, 0, sizeof(serverV_Address));
     serverV_Address.sin_family = AF_INET;
     serverV_Address.sin_port   = htons(serverV_Port);
-    if (inet_pton(AF_INET, stringServerV_AddressIP, (void *) & serverV_Address.sin_addr) <= 0) raiseError(INET_PTON_SCOPE, INET_PTON_ERROR);
-    wconnect(* serverV_SocketFileDescriptor, (struct sockaddr *) & serverV_Address, (socklen_t) sizeof(serverV_Address));
+    if (inet_pton(AF_INET, (const char * restrict) stringServerV_AddressIP, (void *) & serverV_Address.sin_addr) <= 0) raiseError(INET_PTON_SCOPE, INET_PTON_ERROR);
+    wconnect(serverV_SocketFileDescriptor, (struct sockaddr *) & serverV_Address, (socklen_t) sizeof(serverV_Address));
     free(stringServerV_AddressIP);
     return serverV_SocketFileDescriptor;
 }

@@ -2,7 +2,7 @@
 //  GreenPassUtility.h
 //  VanillaGreenPass
 //
-//  Created by Denny Caruso and Francesco Calcopietro on 07/01/22.
+//  Created by Denny Caruso on 07/01/22.
 //
 
 #ifndef GreenPassUtility_h
@@ -84,6 +84,6 @@ void checkHealtCardNumber           (char * healthCardNumber);
 void retrieveConfigurationData      (const char * configFilePath, char ** configurationIP, unsigned short int * configurationPort);
 char * getVaccineExpirationDate     (void);
 char * getNowDate                   (void);
-int * createConnectionWithServerV   (const char * configFilePath);
+int createConnectionWithServerV   (const char * configFilePath);
 
 #endif /* GreenPassUtility_h */

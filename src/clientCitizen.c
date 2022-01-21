@@ -54,3 +54,7 @@ void getVaccination (int centroVaccinaleSocketFileDescriptor, const void * healt
     }
     free(newCentroVaccinaleReply);
 }
+
+int setupClientCitizen (void) {
+    return 1;
+}
