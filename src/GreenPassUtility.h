@@ -23,7 +23,7 @@
 #define HEALTH_CARD_NUMBER_LENGTH 21
 #define DATE_LENGTH 11
 #define MONTHS_IN_A_YEAR 12
-#define SECONDS_BETWEEN_TWO_VACCINES 60*60*24*30*5
+#define SECONDS_BETWEEN_TWO_VACCINES 60 * 60 * 24 * 30 * 5
 
 
 
@@ -84,6 +84,6 @@ void checkHealtCardNumber           (char * healthCardNumber);
 void retrieveConfigurationData      (const char * configFilePath, char ** configurationIP, unsigned short int * configurationPort);
 char * getVaccineExpirationDate     (void);
 char * getNowDate                   (void);
-int createConnectionWithServerV   (const char * configFilePath);
+int createConnectionWithServerV     (const char * configFilePath);
 
 #endif /* GreenPassUtility_h */

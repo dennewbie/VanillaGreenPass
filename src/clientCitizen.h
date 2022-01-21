@@ -15,7 +15,7 @@
 
 
 
-void getVaccination         (int centroVaccinaleSocketFileDescriptor, const void * healthCardNumber, size_t nBytes);
-int setupClientCitizen      (void);
+int setupClientCitizen      (int argc,                                  char * argv[],                  char ** healthCardNumber    );
+void getVaccination         (int centroVaccinaleSocketFileDescriptor,   const void * healthCardNumber,  size_t nBytes               );
 
 #endif /* clientCitizen_h */

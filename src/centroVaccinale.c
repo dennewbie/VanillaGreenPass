@@ -9,8 +9,9 @@
 // TODO: strncmp considerare se HCN_LENGTH - 2 o - 1 in serverV
 // TODO: improve memory handling (date, stringhe getline, etc in tutti i file)
 // TODO: Refactoring completo codice
-// TODO: createConnectionWithServerV(...) can return an int and not an int *
+// DONE: createConnectionWithServerV(...) can return an int and not an int *
 
+// CHECKED
 #include "centroVaccinale.h"
 
 int main (int argc, char * argv[]) {

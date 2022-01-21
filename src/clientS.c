@@ -9,17 +9,26 @@
 #include "clientS.h"
 
 int main (int argc, char * argv[]) {
-    int serverG_SocketFileDescriptor;
+    char * healthCardNumber;
+    int serverG_SocketFileDescriptor = setupClientS(argc, argv, & healthCardNumber);
+    checkGreenPass(serverG_SocketFileDescriptor, (const void *) healthCardNumber, (size_t) sizeof(char) * HEALTH_CARD_NUMBER_LENGTH);
+    wclose(serverG_SocketFileDescriptor);
+    free(healthCardNumber);
+    exit(0);
+}
+
+int setupClientS (int argc, char * argv[], char ** healthCardNumber) {
     struct sockaddr_in serverG_Address;
     const char * expectedUsageMessage = "<Numero Tessera Sanitaria da Controllare>", * configFilePath = "../conf/clientS.conf";
-    char * stringServerG_IP = NULL, * healthCardNumber;
+    char * stringServerG_IP = NULL;
     unsigned short int serverG_Port;
+    int serverG_SocketFileDescriptor;
     
     checkUsage(argc, (const char **) argv, CLIENT_S_ARGS_NO, expectedUsageMessage);
     checkHealtCardNumber(argv[1]);
-    healthCardNumber = (char *) calloc(HEALTH_CARD_NUMBER_LENGTH, sizeof(char));
-    if (!healthCardNumber) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
-    strcpy(healthCardNumber, (const char *) argv[1]);
+    * healthCardNumber = (char *) calloc(HEALTH_CARD_NUMBER_LENGTH, sizeof(char));
+    if (! * healthCardNumber) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
+    strcpy(* healthCardNumber, (const char *) argv[1]);
     retrieveConfigurationData(configFilePath, & stringServerG_IP, & serverG_Port);
 
     serverG_SocketFileDescriptor = wsocket(AF_INET, SOCK_STREAM, 0);
@@ -29,13 +38,9 @@ int main (int argc, char * argv[]) {
     if (inet_pton(AF_INET, (const char * restrict) stringServerG_IP, (void *) & serverG_Address.sin_addr) <= 0) raiseError(INET_PTON_SCOPE, INET_PTON_ERROR);
 
     wconnect(serverG_SocketFileDescriptor, (struct sockaddr *) & serverG_Address, (socklen_t) sizeof(serverG_Address));
-    if (fprintf(stdout, "\nVerifica GreenPass\nNumero tessera sanitaria: %s\n\n... A breve verra' mostrato se il GreenPass inserito risulta essere valido...\n", healthCardNumber) < 0) raiseError(FPRINTF_SCOPE, FPRINTF_ERROR);
-    checkGreenPass(serverG_SocketFileDescriptor, (const void *) healthCardNumber, (size_t) sizeof(char) * HEALTH_CARD_NUMBER_LENGTH);
-    wclose(serverG_SocketFileDescriptor);
-
+    if (fprintf(stdout, "\nVerifica GreenPass\nNumero tessera sanitaria: %s\n\n... A breve verra' mostrato se il GreenPass inserito risulta essere valido...\n", * healthCardNumber) < 0) raiseError(FPRINTF_SCOPE, FPRINTF_ERROR);
     free(stringServerG_IP);
-    free(healthCardNumber);
-    exit(0);
+    return serverG_SocketFileDescriptor;
 }
 
 void checkGreenPass (int serverG_SocketFileDescriptor, const void * healthCardNumber, size_t nBytes) {

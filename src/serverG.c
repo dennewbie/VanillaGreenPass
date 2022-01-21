@@ -5,6 +5,7 @@
 //  Created by Denny Caruso on 10/01/22.
 //
 
+// CHECKED
 #include "serverG.h"
 
 int main (int argc, char * argv[]) {

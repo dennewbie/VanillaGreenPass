@@ -9,21 +9,30 @@
 #include "clientT.h"
 
 int main (int argc, char * argv[]) {
-    int serverG_SocketFileDescriptor;
+    char * healthCardNumber;
+    int newGreenPassStatus, serverG_SocketFileDescriptor = setupClientT(argc, argv, & healthCardNumber, & newGreenPassStatus);
+    updateGreenPass(serverG_SocketFileDescriptor, (const void *) healthCardNumber, (const unsigned short int) newGreenPassStatus);
+    wclose(serverG_SocketFileDescriptor);
+    free(healthCardNumber);
+    exit(0);
+}
+
+int setupClientT (int argc, char * argv[], char ** healthCardNumber, int * newGreenPassStatus) {
     struct sockaddr_in serverG_Address;
     const char * expectedUsageMessage = "<Numero Tessera Sanitaria> <Nuovo Stato Green Pass (0 = NON VALIDO / 1 = VALIDO)>", * configFilePath = "../conf/clientT.conf";
-    char * stringServerG_IP = NULL, * healthCardNumber;
+    char * stringServerG_IP = NULL;
     unsigned short int serverG_Port;
+    int serverG_SocketFileDescriptor;
     
     checkUsage(argc, (const char **) argv, CLIENT_T_ARGS_NO, expectedUsageMessage);
     checkHealtCardNumber(argv[1]);
-    unsigned short int newGreenPassStatus = (unsigned short int) strtoul((const char * restrict) argv[2], (char ** restrict) NULL, 10);
-    if (newGreenPassStatus == 0 && (errno == EINVAL || errno == ERANGE)) raiseError(STRTOUL_SCOPE, STRTOUL_ERROR);
-    if (newGreenPassStatus != TRUE && newGreenPassStatus != FALSE) raiseError(INVALID_UPDATE_STATUS_SCOPE, INVALID_UPDATE_STATUS_ERROR);
+    * newGreenPassStatus = (unsigned short int) strtoul((const char * restrict) argv[2], (char ** restrict) NULL, 10);
+    if (* newGreenPassStatus == 0 && (errno == EINVAL || errno == ERANGE)) raiseError(STRTOUL_SCOPE, STRTOUL_ERROR);
+    if (* newGreenPassStatus != TRUE && * newGreenPassStatus != FALSE) raiseError(INVALID_UPDATE_STATUS_SCOPE, INVALID_UPDATE_STATUS_ERROR);
     
-    healthCardNumber = (char *) calloc(HEALTH_CARD_NUMBER_LENGTH, sizeof(char));
-    if (!healthCardNumber) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
-    strcpy(healthCardNumber, (const char *) argv[1]);
+    * healthCardNumber = (char *) calloc(HEALTH_CARD_NUMBER_LENGTH, sizeof(char));
+    if (! * healthCardNumber) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
+    strcpy(* healthCardNumber, (const char *) argv[1]);
     retrieveConfigurationData(configFilePath, & stringServerG_IP, & serverG_Port);
 
     serverG_SocketFileDescriptor = wsocket(AF_INET, SOCK_STREAM, 0);
@@ -33,13 +42,9 @@ int main (int argc, char * argv[]) {
     if (inet_pton(AF_INET, (const char * restrict) stringServerG_IP, (void *) & serverG_Address.sin_addr) <= 0) raiseError(INET_PTON_SCOPE, INET_PTON_ERROR);
 
     wconnect(serverG_SocketFileDescriptor, (struct sockaddr *) & serverG_Address, (socklen_t) sizeof(serverG_Address));
-    if (fprintf(stdout, "\nAggiornamento Validita' GreenPass\nNumero tessera sanitaria: %s\n\n... A breve verra' inviato il nuovo stato di validita' del Green Pass...\n", healthCardNumber) < 0) raiseError(FPRINTF_SCOPE, FPRINTF_ERROR);
-    updateGreenPass(serverG_SocketFileDescriptor, (const void *) healthCardNumber, (const unsigned short int) newGreenPassStatus);
-    wclose(serverG_SocketFileDescriptor);
-
+    if (fprintf(stdout, "\nAggiornamento Validita' GreenPass\nNumero tessera sanitaria: %s\n\n... A breve verra' inviato il nuovo stato di validita' del Green Pass...\n", * healthCardNumber) < 0) raiseError(FPRINTF_SCOPE, FPRINTF_ERROR);
     free(stringServerG_IP);
-    free(healthCardNumber);
-    exit(0);
+    return serverG_SocketFileDescriptor;
 }
 
 void updateGreenPass (int serverG_SocketFileDescriptor, const void * healthCardNumber, const unsigned short int newGreenPassStatus) {

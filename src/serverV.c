@@ -152,7 +152,7 @@ void * centroVaccinaleRequestHandler (void * args) {
             requestVaccinationDate = mktime(& secondTime);
             
             seconds = difftime(scheduledVaccinationDate, requestVaccinationDate);
-            if (seconds <= SECONDS_BETWEEN_TWO_VACCINES) {
+            if (seconds <= SECONDS_BETWEEN_TWO_VACCINES && seconds > 0) {
                 strncpy((char *) newServerV_Reply->vaccineExpirationDate, (const char *) tempCopiedDate, DATE_LENGTH);
                 isVaccineBlocked = TRUE;
             }
