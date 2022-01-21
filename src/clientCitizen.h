@@ -15,8 +15,6 @@
 
 
 
-const char * expectedUsageMessage = "<Numero Tessera Sanitaria>", * configFilePath = "../conf/clientCitizen.conf";
-
 int setupClientCitizen      (int argc,                                  char * argv[],                  char ** healthCardNumber    );
 void getVaccination         (int centroVaccinaleSocketFileDescriptor,   const void * healthCardNumber,  size_t nBytes               );
 

@@ -11,7 +11,6 @@
 int main (int argc, char * argv[]) {
     char * healthCardNumber;
     int newGreenPassStatus, serverG_SocketFileDescriptor = setupClientT(argc, argv, & healthCardNumber, & newGreenPassStatus);
-    healthCardNumber[HEALTH_CARD_NUMBER_LENGTH - 1] = '\0';
     updateGreenPass(serverG_SocketFileDescriptor, (const void *) healthCardNumber, (const unsigned short int) newGreenPassStatus);
     wclose(serverG_SocketFileDescriptor);
     free(healthCardNumber);
@@ -20,7 +19,7 @@ int main (int argc, char * argv[]) {
 
 int setupClientT (int argc, char * argv[], char ** healthCardNumber, int * newGreenPassStatus) {
     struct sockaddr_in serverG_Address;
-    
+    const char * expectedUsageMessage = "<Numero Tessera Sanitaria> <Nuovo Stato Green Pass (0 = NON VALIDO / 1 = VALIDO)>", * configFilePath = "../conf/clientT.conf";
     char * stringServerG_IP = NULL;
     unsigned short int serverG_Port;
     int serverG_SocketFileDescriptor;
@@ -33,15 +32,15 @@ int setupClientT (int argc, char * argv[], char ** healthCardNumber, int * newGr
     
     * healthCardNumber = (char *) calloc(HEALTH_CARD_NUMBER_LENGTH, sizeof(char));
     if (! * healthCardNumber) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
-    strncpy(* healthCardNumber, (const char *) argv[1], HEALTH_CARD_NUMBER_LENGTH - 1);
+    strcpy(* healthCardNumber, (const char *) argv[1]);
     retrieveConfigurationData(configFilePath, & stringServerG_IP, & serverG_Port);
-    
+
     serverG_SocketFileDescriptor = wsocket(AF_INET, SOCK_STREAM, 0);
     memset((void *) & serverG_Address, 0, sizeof(serverG_Address));
     serverG_Address.sin_family = AF_INET;
     serverG_Address.sin_port   = htons(serverG_Port);
     if (inet_pton(AF_INET, (const char * restrict) stringServerG_IP, (void *) & serverG_Address.sin_addr) <= 0) raiseError(INET_PTON_SCOPE, INET_PTON_ERROR);
-    
+
     wconnect(serverG_SocketFileDescriptor, (struct sockaddr *) & serverG_Address, (socklen_t) sizeof(serverG_Address));
     if (fprintf(stdout, "\nAggiornamento Validita' GreenPass\nNumero tessera sanitaria: %s\n\n... A breve verra' inviato il nuovo stato di validita' del Green Pass...\n", * healthCardNumber) < 0) raiseError(FPRINTF_SCOPE, FPRINTF_ERROR);
     free(stringServerG_IP);

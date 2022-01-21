@@ -10,11 +10,13 @@
 
 #include "GreenPassUtility.h"
 
+#define LINE_LENGTH_DAT_FILE 31
 
 
-void * centroVaccinaleRequestHandler        (void * args                    );
-void * clientS_viaServerG_RequestHandler    (void * args                    );
-void * clientT_viaServerG_RequestHandler    (void * args                    );
-void updateFile                             (FILE * original, FILE * temp   );
+
+void * centroVaccinaleRequestHandler(void * args);
+void * clientS_viaServerG_RequestHandler(void * args);
+void * clientT_viaServerG_RequestHandler(void * args);
+void updateFile(FILE * original, FILE * temp);
 
 #endif /* serverV_h */

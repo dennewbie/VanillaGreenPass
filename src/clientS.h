@@ -15,8 +15,6 @@
 
 
 
-const char * expectedUsageMessage = "<Numero Tessera Sanitaria da Controllare>", * configFilePath = "../conf/clientS.conf";
-
 int setupClientS        (int argc,                          char * argv[],                  char ** healthCardNumber);
 void checkGreenPass     (int serverG_SocketFileDescriptor,  const void * healthCardNumber,  size_t nBytes           );
 
