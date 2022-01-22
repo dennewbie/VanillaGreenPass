@@ -29,18 +29,18 @@
 
 typedef struct {
     char healthCardNumber[HEALTH_CARD_NUMBER_LENGTH];
-    char vaccineExpirationDate[DATE_LENGTH];
+    char greenPassExpirationDate[DATE_LENGTH];
     unsigned short int requestResult;
 } centroVaccinaleReplyToClientCitizen;
 
 typedef struct {
     char healthCardNumber[HEALTH_CARD_NUMBER_LENGTH];
-    char nowDate[DATE_LENGTH];
+    char greenPassExpirationDate[DATE_LENGTH];
 } centroVaccinaleRequestToServerV;
 
 typedef struct {
     char healthCardNumber[HEALTH_CARD_NUMBER_LENGTH];
-    char vaccineExpirationDate[DATE_LENGTH];
+    char greenPassExpirationDate[DATE_LENGTH];
     unsigned short int requestResult;
 } serverV_ReplyToCentroVaccinale;
 

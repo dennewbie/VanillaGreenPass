@@ -62,14 +62,14 @@ void clientCitizenRequestHandler (int connectionFileDescriptor, int serverV_Sock
     
     if ((fullReadReturnValue = fullRead(connectionFileDescriptor, (void *) buffer, (size_t) HEALTH_CARD_NUMBER_LENGTH * sizeof(char))) != 0) raiseError(FULL_READ_SCOPE, (int) fullReadReturnValue);
     strncpy((char *) newCentroVaccinaleRequest->healthCardNumber, (const char *)  buffer, HEALTH_CARD_NUMBER_LENGTH);
-    strncpy((char *) newCentroVaccinaleRequest->nowDate, (const char *) getNowDate(), DATE_LENGTH);
+    strncpy((char *) newCentroVaccinaleRequest->greenPassExpirationDate, (const char *) getVaccineExpirationDate(), DATE_LENGTH);
     
     if ((fullWriteReturnValue = fullWrite(serverV_SocketFileDescriptor, (const void *) & centroVaccinaleSenderID, sizeof(centroVaccinaleSenderID))) != 0) raiseError(FULL_WRITE_SCOPE, (int) fullWriteReturnValue);
     if ((fullWriteReturnValue = fullWrite(serverV_SocketFileDescriptor, (const void *) newCentroVaccinaleRequest, sizeof(* newCentroVaccinaleRequest))) != 0) raiseError(FULL_WRITE_SCOPE, (int) fullWriteReturnValue);
     if ((fullReadReturnValue = fullRead(serverV_SocketFileDescriptor, (void *) newServerV_Reply, sizeof(* newServerV_Reply))) != 0) raiseError(FULL_READ_SCOPE, (int) fullReadReturnValue);
     
     strncpy((char *) newCentroVaccinaleReply->healthCardNumber, (const char *) newServerV_Reply->healthCardNumber, HEALTH_CARD_NUMBER_LENGTH);
-    strncpy((char *) newCentroVaccinaleReply->vaccineExpirationDate, (const char *) newServerV_Reply->vaccineExpirationDate, DATE_LENGTH);
+    strncpy((char *) newCentroVaccinaleReply->greenPassExpirationDate, (const char *) newServerV_Reply->greenPassExpirationDate, DATE_LENGTH);
     newCentroVaccinaleReply->requestResult = newServerV_Reply->requestResult == TRUE ? TRUE : FALSE;
     if ((fullWriteReturnValue = fullWrite(connectionFileDescriptor, (const void *) newCentroVaccinaleReply, (size_t) sizeof(* newCentroVaccinaleReply))) != 0) raiseError(FULL_WRITE_SCOPE, (int) fullWriteReturnValue);
     

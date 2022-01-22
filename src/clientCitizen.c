@@ -46,14 +46,13 @@ void getVaccination (int centroVaccinaleSocketFileDescriptor, const void * healt
     centroVaccinaleReplyToClientCitizen * newCentroVaccinaleReply = (centroVaccinaleReplyToClientCitizen *) calloc(1, sizeof(centroVaccinaleReplyToClientCitizen));
     if (!newCentroVaccinaleReply) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
     
-    if (fprintf(stdout, "\n... Vaccinazione in corso ...\n") < 0) raiseError(FPRINTF_SCOPE, FPRINTF_ERROR);
     if ((fullWriteReturnValue = fullWrite(centroVaccinaleSocketFileDescriptor, healthCardNumber, nBytes)) != 0) raiseError(FULL_WRITE_SCOPE, (int) fullWriteReturnValue);
     if ((fullReadReturnValue = fullRead(centroVaccinaleSocketFileDescriptor, (void *) newCentroVaccinaleReply, sizeof(* newCentroVaccinaleReply))) != 0) raiseError(FULL_READ_SCOPE, (int) fullReadReturnValue);
     
     if (newCentroVaccinaleReply->requestResult == FALSE) {
-        if (fprintf(stdout, "\nNon e' possibile effetuare un'altra dose di vaccino. Devono passare almeno %d mesi dall'ultima inoculazione.\nData a partire dalla quale e' possibile effettuare un'altra dose di vaccino: %s\nArrivederci.\n", MONTHS_TO_WAIT_FOR_NEXT_VACCINATION, newCentroVaccinaleReply->vaccineExpirationDate) < 0) raiseError(FPRINTF_SCOPE, FPRINTF_ERROR);
+        if (fprintf(stdout, "\nNon e' possibile effetuare un'altra dose di vaccino. Devono passare almeno %d mesi dall'ultima inoculazione.\nData a partire dalla quale e' possibile effettuare un'altra dose di vaccino: %s\nArrivederci.\n", MONTHS_TO_WAIT_FOR_NEXT_VACCINATION, newCentroVaccinaleReply->greenPassExpirationDate) < 0) raiseError(FPRINTF_SCOPE, FPRINTF_ERROR);
     } else {
-        if (fprintf(stdout, "\nLa vaccinazione e' andata a buon fine.\nData a partire dalla quale e' possibile effettuare un'altra dose di vaccino: %s\nArrivederci.\n", newCentroVaccinaleReply->vaccineExpirationDate) < 0) raiseError(FPRINTF_SCOPE, FPRINTF_ERROR);
+        if (fprintf(stdout, "\n... Vaccinazione in corso ...\n\nLa vaccinazione e' andata a buon fine.\nData a partire dalla quale e' possibile effettuare un'altra dose di vaccino: %s\nArrivederci.\n", newCentroVaccinaleReply->greenPassExpirationDate) < 0) raiseError(FPRINTF_SCOPE, FPRINTF_ERROR);
     }
     free(newCentroVaccinaleReply);
 }

@@ -74,7 +74,7 @@ void * centroVaccinaleRequestHandler (void * args) {
     ssize_t fullWriteReturnValue, fullReadReturnValue, getLineBytes;
     size_t effectiveLineLength = 0;
     char * singleLine = NULL;
-    char dateCopiedFromFile[DATE_LENGTH];
+    char dateCopiedFromFile[DATE_LENGTH], nowDateString[DATE_LENGTH];
     struct tm firstTime, secondTime;
     time_t scheduledVaccinationDate, requestVaccinationDate = 0;
     double elapsedMonths;
@@ -113,9 +113,10 @@ void * centroVaccinaleRequestHandler (void * args) {
             firstTime.tm_mday = (int) strtol((const char * restrict) & dateCopiedFromFile[0], (char ** restrict) NULL, 10);
             firstTime.tm_mon = ((int) strtol((const char * restrict) & dateCopiedFromFile[3], (char ** restrict) NULL, 10) - 1);
             firstTime.tm_year = ((int) strtol((const char * restrict) & dateCopiedFromFile[6], (char ** restrict) NULL, 10) - 1900);
-            secondTime.tm_mday = ((int) strtol((const char * restrict) & newCentroVaccinaleRequest->nowDate[0], (char ** restrict) NULL, 10));
-            secondTime.tm_mon = ((int) strtol((const char * restrict) & newCentroVaccinaleRequest->nowDate[3], (char ** restrict) NULL, 10) - 1);
-            secondTime.tm_year = ((int) strtol((const char * restrict) & newCentroVaccinaleRequest->nowDate[6], (char ** restrict) NULL, 10) - 1900);
+            strncpy((char *) nowDateString, (const char *) getNowDate(), DATE_LENGTH);
+            secondTime.tm_mday = ((int) strtol((const char * restrict) & nowDateString[0], (char ** restrict) NULL, 10));
+            secondTime.tm_mon = ((int) strtol((const char * restrict) & nowDateString[3], (char ** restrict) NULL, 10) - 1);
+            secondTime.tm_year = ((int) strtol((const char * restrict) & nowDateString[6], (char ** restrict) NULL, 10) - 1900);
             
             if ((firstTime.tm_mday == 0 || firstTime.tm_mon == 0 || firstTime.tm_year == 0 || secondTime.tm_mday == 0 || secondTime.tm_mon == 0 || secondTime.tm_year == 0) && (errno == EINVAL || errno == ERANGE)) {
                 fclose(originalFilePointer);
@@ -133,7 +134,7 @@ void * centroVaccinaleRequestHandler (void * args) {
             
             elapsedMonths = ((((difftime(scheduledVaccinationDate, requestVaccinationDate) / 60) / 60) / 24) / 31);
             if (elapsedMonths <= MONTHS_TO_WAIT_FOR_NEXT_VACCINATION && elapsedMonths > 0) {
-                strncpy((char *) newServerV_Reply->vaccineExpirationDate, (const char *) dateCopiedFromFile, DATE_LENGTH);
+                strncpy((char *) newServerV_Reply->greenPassExpirationDate, (const char *) dateCopiedFromFile, DATE_LENGTH);
                 isVaccineBlocked = TRUE;
             }
             break;
@@ -141,7 +142,7 @@ void * centroVaccinaleRequestHandler (void * args) {
     }
     
     if (!isVaccineBlocked) {
-        strncpy((char *) newServerV_Reply->vaccineExpirationDate, (const char *) getVaccineExpirationDate(), DATE_LENGTH);
+        strncpy((char *) newServerV_Reply->greenPassExpirationDate, (const char *) newCentroVaccinaleRequest->greenPassExpirationDate, DATE_LENGTH);
         newServerV_Reply->requestResult = TRUE;
         fclose(originalFilePointer);
         originalFilePointer = fopen(dataPath, "r");
@@ -163,7 +164,7 @@ void * centroVaccinaleRequestHandler (void * args) {
             }
         }
         
-        if (fprintf(tempFilePointer, "%s:%s:%s\n", newServerV_Reply->healthCardNumber, newServerV_Reply->vaccineExpirationDate, "1") < 0) {
+        if (fprintf(tempFilePointer, "%s:%s:%s\n", newServerV_Reply->healthCardNumber, newServerV_Reply->greenPassExpirationDate, "1") < 0) {
             fclose(originalFilePointer);
             fclose(tempFilePointer);
             if (pthread_mutex_unlock(& fileSystemAccessMutex) != 0) threadAbort(PTHREAD_MUTEX_UNLOCK_SCOPE, PTHREAD_MUTEX_UNLOCK_ERROR, threadConnectionFileDescriptor, args, newCentroVaccinaleRequest, newServerV_Reply);
