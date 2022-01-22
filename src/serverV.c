@@ -326,9 +326,8 @@ void * clientT_viaServerG_RequestHandler(void * args) {
     }
     
     while ((getLineBytes = getline(& singleLine, & effectiveLineLength, originalFilePointer)) != -1) {
-        if ((strncmp((const char *)newServerV_Reply->healthCardNumber, (const char *) singleLine, HEALTH_CARD_NUMBER_LENGTH - 1)) == 0) {
+        if ((strncmp((const char *) newServerV_Reply->healthCardNumber, (const char *) singleLine, HEALTH_CARD_NUMBER_LENGTH - 1)) == 0) {
             healthCardNumberWasFound = TRUE;
-            // fix here strncpy
             strncpy((char *) dateCopiedFromFile, (const char *) singleLine + HEALTH_CARD_NUMBER_LENGTH, DATE_LENGTH - 1);
             dateCopiedFromFile[DATE_LENGTH - 1] = '\0';
             break;

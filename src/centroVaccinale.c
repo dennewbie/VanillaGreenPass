@@ -5,8 +5,6 @@
 //  Created by Denny Caruso on 08/01/22.
 //
 
-// TODO: strncmp considerare se HCN_LENGTH - 2 o - 1 in serverV
-
 #include "centroVaccinale.h"
 
 int main (int argc, char * argv[]) {
