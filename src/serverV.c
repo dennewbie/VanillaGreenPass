@@ -13,7 +13,7 @@ int main (int argc, char * argv[]) {
     pthread_attr_t attr;
     unsigned short int serverV_Port, requestIdentifier;
     struct sockaddr_in serverV_Address, client;
-
+    
     checkUsage(argc, (const char **) argv, SERVER_V_ARGS_NO, expectedUsageMessage);
     serverV_Port = (unsigned short int) strtoul((const char * restrict) argv[1], (char ** restrict) NULL, 10);
     if (serverV_Port == 0 && (errno == EINVAL || errno == ERANGE)) raiseError(STRTOUL_SCOPE, STRTOUL_ERROR);
@@ -87,7 +87,7 @@ void * centroVaccinaleRequestHandler (void * args) {
     serverV_ReplyToCentroVaccinale * newServerV_Reply = (serverV_ReplyToCentroVaccinale *) calloc(1, sizeof(serverV_ReplyToCentroVaccinale));
     if (!newServerV_Reply) threadAbort(CALLOC_SCOPE, CALLOC_ERROR, threadConnectionFileDescriptor, args, newCentroVaccinaleRequest);
     
-    if ((fullReadReturnValue = fullRead(threadConnectionFileDescriptor, (void *) newCentroVaccinaleRequest, (size_t) sizeof(* newCentroVaccinaleRequest))) != 0) threadAbort(FULL_READ_SCOPE, (int) fullReadReturnValue, threadConnectionFileDescriptor, args, newCentroVaccinaleRequest, newServerV_Reply);
+    if ((fullReadReturnValue = fullRead(threadConnectionFileDescriptor, (void *) newCentroVaccinaleRequest, sizeof(* newCentroVaccinaleRequest))) != 0) threadAbort(FULL_READ_SCOPE, (int) fullReadReturnValue, threadConnectionFileDescriptor, args, newCentroVaccinaleRequest, newServerV_Reply);
     strncpy((char *) newServerV_Reply->healthCardNumber, (const char *) newCentroVaccinaleRequest->healthCardNumber, HEALTH_CARD_NUMBER_LENGTH);
     newServerV_Reply->requestResult = FALSE;
     
@@ -125,10 +125,10 @@ void * centroVaccinaleRequestHandler (void * args) {
             }
             
             if (((scheduledVaccinationDate = mktime(& firstTime)) == -1) || ((requestVaccinationDate = mktime(& secondTime)) == -1)) {
-                    fclose(originalFilePointer);
-                    fclose(tempFilePointer);
-                    if (pthread_mutex_unlock(& fileSystemAccessMutex) != 0) threadAbort(PTHREAD_MUTEX_UNLOCK_SCOPE, PTHREAD_MUTEX_UNLOCK_ERROR, threadConnectionFileDescriptor, args, newCentroVaccinaleRequest, newServerV_Reply);
-                    threadAbort(MKTIME_SCOPE, MKTIME_ERROR, threadConnectionFileDescriptor, args, newCentroVaccinaleRequest, newServerV_Reply);
+                fclose(originalFilePointer);
+                fclose(tempFilePointer);
+                if (pthread_mutex_unlock(& fileSystemAccessMutex) != 0) threadAbort(PTHREAD_MUTEX_UNLOCK_SCOPE, PTHREAD_MUTEX_UNLOCK_ERROR, threadConnectionFileDescriptor, args, newCentroVaccinaleRequest, newServerV_Reply);
+                threadAbort(MKTIME_SCOPE, MKTIME_ERROR, threadConnectionFileDescriptor, args, newCentroVaccinaleRequest, newServerV_Reply);
             }
             
             elapsedMonths = ((((difftime(scheduledVaccinationDate, requestVaccinationDate) / 60) / 60) / 24) / 31);
@@ -191,7 +191,7 @@ void * centroVaccinaleRequestHandler (void * args) {
         fclose(tempFilePointer);
     }
     
-    if ((fullWriteReturnValue = fullWrite(threadConnectionFileDescriptor, (const void *) newServerV_Reply, (size_t) sizeof(* newServerV_Reply))) != 0) {
+    if ((fullWriteReturnValue = fullWrite(threadConnectionFileDescriptor, (const void *) newServerV_Reply, sizeof(* newServerV_Reply))) != 0) {
         fclose(originalFilePointer);
         fclose(tempFilePointer);
         if (pthread_mutex_unlock(& fileSystemAccessMutex) != 0) threadAbort(PTHREAD_MUTEX_UNLOCK_SCOPE, PTHREAD_MUTEX_UNLOCK_ERROR, threadConnectionFileDescriptor, args, newCentroVaccinaleRequest, newServerV_Reply);
@@ -261,9 +261,9 @@ void * clientS_viaServerG_RequestHandler(void * args) {
             }
             
             if (((scheduledVaccinationDate = mktime(& firstTime)) == -1) || ((requestVaccinationDate = mktime(& secondTime)) == -1)) {
-                    fclose(originalFilePointer);
-                    if (pthread_mutex_unlock(& fileSystemAccessMutex) != 0) threadAbort(PTHREAD_MUTEX_UNLOCK_SCOPE, PTHREAD_MUTEX_UNLOCK_ERROR, threadConnectionFileDescriptor, args, newServerV_Reply);
-                    threadAbort(MKTIME_SCOPE, MKTIME_ERROR, threadConnectionFileDescriptor, args, newServerV_Reply);
+                fclose(originalFilePointer);
+                if (pthread_mutex_unlock(& fileSystemAccessMutex) != 0) threadAbort(PTHREAD_MUTEX_UNLOCK_SCOPE, PTHREAD_MUTEX_UNLOCK_ERROR, threadConnectionFileDescriptor, args, newServerV_Reply);
+                threadAbort(MKTIME_SCOPE, MKTIME_ERROR, threadConnectionFileDescriptor, args, newServerV_Reply);
             }
             
             elapsedMonths = ((((difftime(scheduledVaccinationDate, requestVaccinationDate) / 60) / 60) / 24) / 31);
@@ -285,7 +285,7 @@ void * clientS_viaServerG_RequestHandler(void * args) {
     if (pthread_mutex_unlock(& fileSystemAccessMutex) != 0) threadAbort(PTHREAD_MUTEX_UNLOCK_SCOPE, PTHREAD_MUTEX_UNLOCK_ERROR, threadConnectionFileDescriptor, args, newServerV_Reply);
     
     if (healthCardNumberWasFound) if (isGreenPassValid && !isGreenPassExpired) newServerV_Reply->requestResult = TRUE;
-    if ((fullWriteReturnValue = fullWrite(threadConnectionFileDescriptor, (const void *) newServerV_Reply, (size_t) sizeof(serverV_ReplyToServerG_clientS))) != 0) threadAbort(FULL_WRITE_SCOPE, (int) fullWriteReturnValue, threadConnectionFileDescriptor, args, newServerV_Reply);
+    if ((fullWriteReturnValue = fullWrite(threadConnectionFileDescriptor, (const void *) newServerV_Reply, sizeof(serverV_ReplyToServerG_clientS))) != 0) threadAbort(FULL_WRITE_SCOPE, (int) fullWriteReturnValue, threadConnectionFileDescriptor, args, newServerV_Reply);
     
     free(newServerV_Reply);
     free(args);
@@ -294,65 +294,43 @@ void * clientS_viaServerG_RequestHandler(void * args) {
 }
 
 void * clientT_viaServerG_RequestHandler(void * args) {
-    pthread_mutex_lock(& connectionFileDescriptorMutex);
+    if (pthread_mutex_lock(& connectionFileDescriptorMutex) != 0) threadRaiseError(PTHREAD_MUTEX_LOCK_SCOPE, PTHREAD_MUTEX_LOCK_ERROR);
     int threadConnectionFileDescriptor = * ((int *) args);
-    pthread_mutex_unlock(& connectionFileDescriptorMutex);
+    if (pthread_mutex_unlock(& connectionFileDescriptorMutex) != 0) threadRaiseError(PTHREAD_MUTEX_UNLOCK_SCOPE, PTHREAD_MUTEX_UNLOCK_ERROR);
     ssize_t fullWriteReturnValue, fullReadReturnValue, getLineBytes;
     size_t effectiveLineLength = 0;
-    char * singleLine = NULL, * vaccineExpirationDateString;
+    char * singleLine = NULL;;
     enum boolean healthCardNumberWasFound = FALSE;
     FILE * originalFilePointer, * tempFilePointer = NULL;
+    char healthCardNumber[HEALTH_CARD_NUMBER_LENGTH], dateCopiedFromFile[DATE_LENGTH];
     
-    char healthCardNumber[HEALTH_CARD_NUMBER_LENGTH];
     serverG_RequestToServerV_onBehalfOfClientT * newServerG_Request = (serverG_RequestToServerV_onBehalfOfClientT *) calloc(1, sizeof(serverG_RequestToServerV_onBehalfOfClientT));
-    if (!newServerG_Request) {
-        free(args);
-        threadRaiseError(CALLOC_SCOPE, CALLOC_ERROR);
-    }
+    if (!newServerG_Request) threadAbort(CALLOC_SCOPE, CALLOC_ERROR, threadConnectionFileDescriptor, args);
     
     serverV_ReplyToServerG_clientT * newServerV_Reply = (serverV_ReplyToServerG_clientT *) calloc(1, sizeof(serverV_ReplyToServerG_clientT));
-    if (!newServerV_Reply) {
-        free(newServerG_Request);
-        free(args);
-        threadRaiseError(CALLOC_SCOPE, CALLOC_ERROR);
-    }
+    if (!newServerV_Reply) threadAbort(CALLOC_SCOPE, CALLOC_ERROR, threadConnectionFileDescriptor, args, newServerG_Request);
     
-    vaccineExpirationDateString = (char *) calloc(DATE_LENGTH, sizeof(char));
-    if (!vaccineExpirationDateString) {
-        free(newServerG_Request);
-        free(newServerV_Reply);
-        free(args);
-        threadRaiseError(CALLOC_SCOPE, CALLOC_ERROR);
-    }
-    
-    if ((fullReadReturnValue = fullRead(threadConnectionFileDescriptor, (void *) newServerG_Request, (size_t) sizeof(serverG_RequestToServerV_onBehalfOfClientT))) != 0) {
-        free(vaccineExpirationDateString);
-        free(newServerV_Reply);
-        free(newServerG_Request);
-        free(args);
-        threadRaiseError(FULL_READ_SCOPE, (int) fullReadReturnValue);
+    if ((fullReadReturnValue = fullRead(threadConnectionFileDescriptor, (void *) newServerG_Request, sizeof(* newServerG_Request))) != 0) {
+        threadAbort(FULL_READ_SCOPE, (int) fullReadReturnValue, threadConnectionFileDescriptor, args, newServerG_Request, newServerV_Reply);
     }
     
     strncpy((char *) healthCardNumber, (const char *) newServerG_Request->healthCardNumber, HEALTH_CARD_NUMBER_LENGTH);
     strncpy((char *) newServerV_Reply->healthCardNumber, (const char *) healthCardNumber, HEALTH_CARD_NUMBER_LENGTH);
     newServerV_Reply->updateResult = FALSE;
     
-    pthread_mutex_lock(& fileSystemAccessMutex);
+    if (pthread_mutex_lock(& fileSystemAccessMutex) != 0) threadAbort(PTHREAD_MUTEX_LOCK_SCOPE, PTHREAD_MUTEX_LOCK_ERROR, threadConnectionFileDescriptor, args, newServerG_Request, newServerV_Reply);
     originalFilePointer = fopen(dataPath, "r");
     if (!originalFilePointer) {
-        free(vaccineExpirationDateString);
-        free(newServerV_Reply);
-        free(newServerG_Request);
-        free(args);
-        pthread_mutex_unlock(& fileSystemAccessMutex);
-        threadRaiseError(FOPEN_SCOPE, FOPEN_ERROR);
+        if (pthread_mutex_unlock(& fileSystemAccessMutex) != 0) threadAbort(PTHREAD_MUTEX_UNLOCK_SCOPE, PTHREAD_MUTEX_UNLOCK_ERROR, threadConnectionFileDescriptor, args, newServerV_Reply);
+        threadAbort(FOPEN_SCOPE, FOPEN_ERROR, threadConnectionFileDescriptor, args, newServerG_Request, newServerV_Reply);
     }
     
-    while ((getLineBytes = getline(& singleLine, & effectiveLineLength, originalFilePointer)) > 0) {
-        if ((strncmp(newServerV_Reply->healthCardNumber, singleLine, HEALTH_CARD_NUMBER_LENGTH - 1)) == 0) {
+    while ((getLineBytes = getline(& singleLine, & effectiveLineLength, originalFilePointer)) != -1) {
+        if ((strncmp((const char *)newServerV_Reply->healthCardNumber, (const char *) singleLine, HEALTH_CARD_NUMBER_LENGTH - 1)) == 0) {
             healthCardNumberWasFound = TRUE;
             // fix here strncpy
-            strncpy((char *) vaccineExpirationDateString, (const char *) singleLine + HEALTH_CARD_NUMBER_LENGTH, DATE_LENGTH - 1);
+            strncpy((char *) dateCopiedFromFile, (const char *) singleLine + HEALTH_CARD_NUMBER_LENGTH, DATE_LENGTH - 1);
+            dateCopiedFromFile[DATE_LENGTH - 1] = '\0';
             break;
         }
     }
@@ -364,86 +342,61 @@ void * clientT_viaServerG_RequestHandler(void * args) {
         if (!originalFilePointer || !tempFilePointer) {
             fclose(originalFilePointer);
             fclose(tempFilePointer);
-            free(vaccineExpirationDateString);
-            free(args);
-            free(newServerV_Reply);
-            free(newServerG_Request);
-            pthread_mutex_unlock(& fileSystemAccessMutex);
-            threadRaiseError(FOPEN_SCOPE, FOPEN_ERROR);
+            if (pthread_mutex_unlock(& fileSystemAccessMutex) != 0) threadAbort(PTHREAD_MUTEX_UNLOCK_SCOPE, PTHREAD_MUTEX_UNLOCK_ERROR, threadConnectionFileDescriptor, args, newServerG_Request, newServerV_Reply);
+            threadAbort(FOPEN_SCOPE, FOPEN_ERROR, threadConnectionFileDescriptor, args, newServerG_Request, newServerV_Reply);
         }
         
         // salvo nel file serverV.dat il nuovo stato del green pass
-        while ((getLineBytes = getline(& singleLine, & effectiveLineLength, originalFilePointer)) > 0) {
+        while ((getLineBytes = getline(& singleLine, & effectiveLineLength, originalFilePointer)) != -1) {
             if ((strncmp(newServerV_Reply->healthCardNumber, singleLine, HEALTH_CARD_NUMBER_LENGTH - 1)) != 0) {
                 if (fprintf(tempFilePointer, "%s", singleLine) < 0) {
                     fclose(originalFilePointer);
                     fclose(tempFilePointer);
-                    free(vaccineExpirationDateString);
-                    free(args);
-                    free(newServerV_Reply);
-                    free(newServerG_Request);
-                    pthread_mutex_unlock(& fileSystemAccessMutex);
-                    threadRaiseError(FPRINTF_SCOPE, FPRINTF_ERROR);
+                    if (pthread_mutex_unlock(& fileSystemAccessMutex) != 0) threadAbort(PTHREAD_MUTEX_UNLOCK_SCOPE, PTHREAD_MUTEX_UNLOCK_ERROR, threadConnectionFileDescriptor, args, newServerG_Request, newServerV_Reply);
+                    threadAbort(FPRINTF_SCOPE, FPRINTF_ERROR, threadConnectionFileDescriptor, args, newServerG_Request, newServerV_Reply);
                 }
             }
         }
         
-        if (fprintf(tempFilePointer, "%s:%s:%hu\n", newServerV_Reply->healthCardNumber, vaccineExpirationDateString, newServerG_Request->updateValue) < 0) {
+        if (fprintf(tempFilePointer, "%s:%s:%hu\n", newServerV_Reply->healthCardNumber, dateCopiedFromFile, newServerG_Request->updateValue) < 0) {
             fclose(originalFilePointer);
             fclose(tempFilePointer);
-            free(vaccineExpirationDateString);
-            free(newServerV_Reply);
-            free(newServerG_Request);
-            free(args);
-            pthread_mutex_unlock(& fileSystemAccessMutex);
-            threadRaiseError(FPRINTF_SCOPE, FPRINTF_ERROR);
+            if (pthread_mutex_unlock(& fileSystemAccessMutex) != 0) threadAbort(PTHREAD_MUTEX_UNLOCK_SCOPE, PTHREAD_MUTEX_UNLOCK_ERROR, threadConnectionFileDescriptor, args, newServerG_Request, newServerV_Reply);
+            threadAbort(FPRINTF_SCOPE, FPRINTF_ERROR, threadConnectionFileDescriptor, args, newServerG_Request, newServerV_Reply);
         }
         
         // updateFile
         fclose(originalFilePointer);
         fclose(tempFilePointer);
         if (remove(dataPath) != 0) {
-            fclose(originalFilePointer);
-            fclose(tempFilePointer);
-            free(vaccineExpirationDateString);
-            free(newServerG_Request);
-            free(newServerV_Reply);
-            free(args);
-            pthread_mutex_unlock(& fileSystemAccessMutex);
-            threadRaiseError(REMOVE_SCOPE, REMOVE_ERROR);
+            if (pthread_mutex_unlock(& fileSystemAccessMutex) != 0) threadAbort(PTHREAD_MUTEX_UNLOCK_SCOPE, PTHREAD_MUTEX_UNLOCK_ERROR, threadConnectionFileDescriptor, args, newServerG_Request, newServerV_Reply);
+            threadAbort(REMOVE_SCOPE, REMOVE_ERROR, threadConnectionFileDescriptor, args, newServerG_Request, newServerV_Reply);
         }
         
         if (rename(tempDataPath, dataPath) != 0) {
-            fclose(originalFilePointer);
-            fclose(tempFilePointer);
-            free(vaccineExpirationDateString);
-            free(newServerG_Request);
-            free(newServerV_Reply);
-            free(args);
-            pthread_mutex_unlock(& fileSystemAccessMutex);
-            threadRaiseError(RENAME_SCOPE, RENAME_ERROR);
+            if (pthread_mutex_unlock(& fileSystemAccessMutex) != 0) threadAbort(PTHREAD_MUTEX_UNLOCK_SCOPE, PTHREAD_MUTEX_UNLOCK_ERROR, threadConnectionFileDescriptor, args, newServerG_Request, newServerV_Reply);
+            threadAbort(RENAME_SCOPE, RENAME_ERROR, threadConnectionFileDescriptor, args, newServerG_Request, newServerV_Reply);
         }
         
         tempFilePointer = fopen(tempDataPath, "w+");
         if (!tempFilePointer) {
-            fclose(originalFilePointer);
-            fclose(tempFilePointer);
-            free(vaccineExpirationDateString);
-            free(newServerG_Request);
-            free(newServerV_Reply);
-            free(args);
-            pthread_mutex_unlock(& fileSystemAccessMutex);
-            threadRaiseError(FOPEN_SCOPE, FOPEN_ERROR);
+            if (pthread_mutex_unlock(& fileSystemAccessMutex) != 0) threadAbort(PTHREAD_MUTEX_UNLOCK_SCOPE, PTHREAD_MUTEX_UNLOCK_ERROR, threadConnectionFileDescriptor, args, newServerG_Request, newServerV_Reply);
+            threadAbort(FOPEN_SCOPE, FOPEN_ERROR, threadConnectionFileDescriptor, args, newServerG_Request, newServerV_Reply);
         }
+        fclose(tempFilePointer);
         newServerV_Reply->updateResult = TRUE;
     }
     
-    if ((fullWriteReturnValue = fullWrite(threadConnectionFileDescriptor, (const void *) newServerV_Reply, (size_t) sizeof(serverV_ReplyToServerG_clientT))) != 0) raiseError(FULL_WRITE_SCOPE, (int) fullWriteReturnValue);
+    if ((fullWriteReturnValue = fullWrite(threadConnectionFileDescriptor, (const void *) newServerV_Reply, sizeof(serverV_ReplyToServerG_clientT))) != 0) { fclose(originalFilePointer);
+        fclose(tempFilePointer);
+        if (pthread_mutex_unlock(& fileSystemAccessMutex) != 0) threadAbort(PTHREAD_MUTEX_UNLOCK_SCOPE, PTHREAD_MUTEX_UNLOCK_ERROR, threadConnectionFileDescriptor, args, newServerG_Request, newServerV_Reply);
+        threadAbort(FULL_WRITE_SCOPE, (int) fullWriteReturnValue, threadConnectionFileDescriptor, args, newServerG_Request, newServerV_Reply);
+    }
     
     fclose(originalFilePointer);
     fclose(tempFilePointer);
-    pthread_mutex_unlock(& fileSystemAccessMutex);
-    free(vaccineExpirationDateString);
+    if (pthread_mutex_unlock(& fileSystemAccessMutex) != 0) threadAbort(PTHREAD_MUTEX_UNLOCK_SCOPE, PTHREAD_MUTEX_UNLOCK_ERROR, threadConnectionFileDescriptor, args, newServerG_Request, newServerV_Reply);
+    wclose(threadConnectionFileDescriptor);
     free(newServerV_Reply);
     free(newServerG_Request);
     free(args);
