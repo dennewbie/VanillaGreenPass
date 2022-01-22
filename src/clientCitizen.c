@@ -5,7 +5,6 @@
 //  Created by Denny Caruso on 07/01/22.
 //
 
-// CHECKED
 #include "clientCitizen.h"
 
 int main (int argc, char * argv[]) {

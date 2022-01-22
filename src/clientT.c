@@ -5,7 +5,6 @@
 //  Created by Denny Caruso on 10/01/22.
 //
 
-// CHECKED
 #include "clientT.h"
 
 int main (int argc, char * argv[]) {

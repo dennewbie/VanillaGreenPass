@@ -5,15 +5,8 @@
 //  Created by Denny Caruso on 08/01/22.
 //
 
-// TODO: error handling su tutte le funzioni completo (manca serverV)
 // TODO: strncmp considerare se HCN_LENGTH - 2 o - 1 in serverV
-// TODO: improve memory handling (date, stringhe getline, etc in tutti i file)
-// TODO: Refactoring completo codice (manca serverV)
-// DONE: createConnectionWithServerV(...) can return an int and not an int *
-// TODO: wclose serverV dei singoli ThreadConnectionDescriptor
-// TODO: read e write cambiare sizeof(struct usata)
 
-// CHECKED
 #include "centroVaccinale.h"
 
 int main (int argc, char * argv[]) {

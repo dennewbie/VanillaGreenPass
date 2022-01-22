@@ -5,7 +5,6 @@
 //  Created by Denny Caruso on 20/10/21.
 //
 
-// CHECKED
 #ifndef NetWrapper_h
 #define NetWrapper_h
 

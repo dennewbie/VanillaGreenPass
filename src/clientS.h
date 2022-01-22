@@ -5,7 +5,6 @@
 //  Created by Denny Caruso on 10/01/22.
 //
 
-// CHECKED 
 #ifndef clientS_h
 #define clientS_h
 

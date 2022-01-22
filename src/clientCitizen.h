@@ -5,7 +5,6 @@
 //  Created by Denny Caruso on 07/01/22.
 //
 
-// CHECKED
 #ifndef clientCitizen_h
 #define clientCitizen_h
 

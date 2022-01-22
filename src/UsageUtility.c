@@ -5,7 +5,6 @@
 //  Created by Denny Caruso on 20/10/21.
 //
 
-// CHECKED
 #include "UsageUtility.h"
 
 void checkUsage (int argc, const char * argv[], int expected_argc, const char * expectedUsageMessage) {

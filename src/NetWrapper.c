@@ -5,7 +5,6 @@
 //  Created by Denny Caruso on 20/10/21.
 //
 
-// CHECKED
 #include "NetWrapper.h"
 
 int wsocket (int domain, int type, int protocol) {

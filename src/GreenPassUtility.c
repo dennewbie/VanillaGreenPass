@@ -7,13 +7,11 @@
 
 #include "GreenPassUtility.h"
 
-// CHECKED
 void checkHealtCardNumber (char * healthCardNumber) {
     size_t healthCardNumberLength = strlen(healthCardNumber);
     if (healthCardNumberLength + 1 != HEALTH_CARD_NUMBER_LENGTH) raiseError(CHECK_HEALTH_CARD_NUMBER_SCOPE, CHECK_HEALTH_CARD_NUMBER_ERROR);
 }
 
-// CHECKED
 void retrieveConfigurationData (const char * configFilePath, char ** configurationIP, unsigned short int * configurationPort) {
     FILE * filePointer;
     size_t IPlength = 0, portLength = 0;
@@ -33,7 +31,6 @@ void retrieveConfigurationData (const char * configFilePath, char ** configurati
     fclose(filePointer);
 }
 
-// CHECKED
 char * getVaccineExpirationDate (void) {
     time_t systemTimeSeconds = time(NULL);
     struct tm * expirationDateTimeInfo = localtime((const time_t *) & systemTimeSeconds);
@@ -52,7 +49,6 @@ char * getVaccineExpirationDate (void) {
     return vaccineExpirationDate;
 }
 
-// CHECKED
 char * getNowDate (void) {
     time_t tempTimeSeconds = time(NULL);
     struct tm * nowDateTimeInfo = localtime((const time_t *) & tempTimeSeconds);
@@ -64,7 +60,6 @@ char * getNowDate (void) {
     return nowDate;
 }
 
-// CHECKED
 int createConnectionWithServerV (const char * configFilePath) {
     struct sockaddr_in serverV_Address;
     char * stringServerV_AddressIP = NULL;

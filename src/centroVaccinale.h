@@ -5,7 +5,6 @@
 //  Created by Denny Caruso on 08/01/22.
 //
 
-// CHECKED
 #ifndef centroVaccinale_h
 #define centroVaccinale_h
 

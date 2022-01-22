@@ -5,7 +5,6 @@
 //  Created by Denny Caruso on 20/10/21.
 //
 
-// CHECKED
 #ifndef UsageUtility_h
 #define UsageUtility_h
 

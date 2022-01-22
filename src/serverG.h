@@ -8,7 +8,6 @@
 #ifndef serverG_h
 #define serverG_h
 
-// CHECKED
 #include "GreenPassUtility.h"
 
 #define SERVER_G_ARGS_NO 2
