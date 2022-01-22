@@ -7,21 +7,17 @@
 
 #include "serverV.h"
 
-pthread_mutex_t fileSystemAccessMutex;
-pthread_mutex_t connectionFileDescriptorMutex;
-const char * dataPath = "../data/serverV.dat";
-const char * tempDataPath = "../data/tempServerV.dat";
-
 int main (int argc, char * argv[]) {
-    int listenFileDescriptor, connectionFileDescriptor, enable = TRUE;
+    int listenFileDescriptor, connectionFileDescriptor, enable = TRUE, threadCreationReturnValue;
     pthread_t singleTID;
     pthread_attr_t attr;
-    unsigned short int serverV_Port;
+    unsigned short int serverV_Port, requestIdentifier;
     struct sockaddr_in serverV_Address, client;
-    const char * expectedUsageMessage = "<ServerV Port>";
+
     
-    checkUsage(argc, (const char **) argv, 2, expectedUsageMessage);
-    serverV_Port = (unsigned short int) strtoul(argv[1], (char **) NULL, 10);
+    checkUsage(argc, (const char **) argv, SERVER_V_ARGS_NO, expectedUsageMessage);
+    serverV_Port = (unsigned short int) strtoul((const char * restrict) argv[1], (char ** restrict) NULL, 10);
+    if (serverV_Port == 0 && (errno == EINVAL || errno == ERANGE)) raiseError(STRTOUL_SCOPE, STRTOUL_ERROR);
     
     listenFileDescriptor = wsocket(AF_INET, SOCK_STREAM, 0);
     if (setsockopt(listenFileDescriptor, SOL_SOCKET, SO_REUSEADDR, & enable, (socklen_t) sizeof(int))  == -1) raiseError(SET_SOCK_OPT_SCOPE, SET_SOCK_OPT_ERROR);
@@ -31,26 +27,23 @@ int main (int argc, char * argv[]) {
     serverV_Address.sin_addr.s_addr = htonl(INADDR_ANY);
     serverV_Address.sin_port        = htons(serverV_Port);
     wbind(listenFileDescriptor, (struct sockaddr *) & serverV_Address, (socklen_t) sizeof(serverV_Address));
-    wlisten(listenFileDescriptor, LISTEN_QUEUE_SIZE);
+    wlisten(listenFileDescriptor, LISTEN_QUEUE_SIZE * LISTEN_QUEUE_SIZE);
     
-    if (pthread_mutex_init(& fileSystemAccessMutex, NULL) != 0) raiseError(PTHREAD_MUTEX_INIT_SCOPE, PTHREAD_MUTEX_INIT_ERROR);
-    if (pthread_mutex_init(& connectionFileDescriptorMutex, NULL) != 0) raiseError(PTHREAD_MUTEX_INIT_SCOPE, PTHREAD_MUTEX_INIT_ERROR);
-    pthread_attr_init(& attr);
-    pthread_attr_setdetachstate(& attr, PTHREAD_CREATE_DETACHED);
+    if (pthread_mutex_init(& fileSystemAccessMutex, (const pthread_mutexattr_t *) NULL) != 0) raiseError(PTHREAD_MUTEX_INIT_SCOPE, PTHREAD_MUTEX_INIT_ERROR);
+    if (pthread_mutex_init(& connectionFileDescriptorMutex, (const pthread_mutexattr_t *) NULL) != 0) raiseError(PTHREAD_MUTEX_INIT_SCOPE, PTHREAD_MUTEX_INIT_ERROR);
+    if (pthread_attr_init(& attr) != 0) raiseError(PTHREAD_MUTEX_ATTR_INIT_SCOPE, PTHREAD_MUTEX_ATTR_INIT_ERROR);
+    if (pthread_attr_setdetachstate(& attr, PTHREAD_CREATE_DETACHED) != 0) raiseError(PTHREAD_ATTR_DETACH_STATE_SCOPE, PTHREAD_ATTR_DETACH_STATE_ERROR);
     
     while (TRUE) {
-        unsigned short int requestIdentifier;
-        int threadCreationReturnValue;
         ssize_t fullReadReturnValue;
         socklen_t clientAddressLength = (socklen_t) sizeof(client);
         connectionFileDescriptor = waccept(listenFileDescriptor, (struct sockaddr *) & client, (socklen_t *) & clientAddressLength);
-        if ((fullReadReturnValue = fullRead(connectionFileDescriptor, (void *) & requestIdentifier, (size_t) sizeof(unsigned short int))) != 0) raiseError(FULL_READ_SCOPE, (int) fullReadReturnValue);
+        if ((fullReadReturnValue = fullRead(connectionFileDescriptor, (void *) & requestIdentifier, sizeof(requestIdentifier))) != 0) raiseError(FULL_READ_SCOPE, (int) fullReadReturnValue);
         
+        pthread_mutex_lock(& connectionFileDescriptorMutex);
         int * threadConnectionFileDescriptor = (int *) calloc(1, sizeof(int));
         if (!threadConnectionFileDescriptor) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
-        // check se necessario questo ulteriore mutex
-        pthread_mutex_lock(& connectionFileDescriptorMutex);
-        if ((*threadConnectionFileDescriptor = dup(connectionFileDescriptor)) < 0) raiseError(DUP_SCOPE, DUP_ERROR);
+        if ((* threadConnectionFileDescriptor = dup(connectionFileDescriptor)) < 0) raiseError(DUP_SCOPE, DUP_ERROR);
         pthread_mutex_unlock(& connectionFileDescriptorMutex);
         switch (requestIdentifier) {
             case centroVaccinaleSender:
@@ -76,7 +69,9 @@ int main (int argc, char * argv[]) {
 }
 
 void * centroVaccinaleRequestHandler (void * args) {
-    int * threadConnectionFileDescriptor = (int *) args;
+    pthread_mutex_lock(& connectionFileDescriptorMutex);
+    int threadConnectionFileDescriptor = * ((int *) args);
+    pthread_mutex_unlock(& connectionFileDescriptorMutex);
     ssize_t fullWriteReturnValue, fullReadReturnValue, getLineBytes;
     size_t effectiveLineLength = 0;
     char * singleLine = NULL, * tempCopiedDate;
@@ -89,14 +84,14 @@ void * centroVaccinaleRequestHandler (void * args) {
     
     centroVaccinaleRequestToServerV * newCentroVaccinaleRequest = (centroVaccinaleRequestToServerV *) calloc(1, sizeof(centroVaccinaleRequestToServerV));
     if (!newCentroVaccinaleRequest) {
-        free(threadConnectionFileDescriptor);
+        free(args);
         threadRaiseError(CALLOC_SCOPE, CALLOC_ERROR);
     }
     
     serverV_ReplyToCentroVaccinale * newServerV_Reply = (serverV_ReplyToCentroVaccinale *) calloc(1, sizeof(serverV_ReplyToCentroVaccinale));
     if (!newServerV_Reply) {
         free(newCentroVaccinaleRequest);
-        free(threadConnectionFileDescriptor);
+        free(args);
         threadRaiseError(CALLOC_SCOPE, CALLOC_ERROR);
     }
     
@@ -104,17 +99,18 @@ void * centroVaccinaleRequestHandler (void * args) {
     if (!tempCopiedDate) {
         free(newCentroVaccinaleRequest);
         free(newServerV_Reply);
-        free(threadConnectionFileDescriptor);
+        free(args);
         threadRaiseError(CALLOC_SCOPE, CALLOC_ERROR);
     }
     
-    if ((fullReadReturnValue = fullRead(* threadConnectionFileDescriptor, (void *) newCentroVaccinaleRequest, (size_t) sizeof(centroVaccinaleRequestToServerV))) != 0) {
+    if ((fullReadReturnValue = fullRead(threadConnectionFileDescriptor, (void *) newCentroVaccinaleRequest, (size_t) sizeof(centroVaccinaleRequestToServerV))) != 0) {
         free(newCentroVaccinaleRequest);
         free(newServerV_Reply);
         free(tempCopiedDate);
-        free(threadConnectionFileDescriptor);
+        free(args);
         threadRaiseError(FULL_READ_SCOPE, (int) fullReadReturnValue);
     }
+    sleep(3);
     strncpy((char *) newServerV_Reply->healthCardNumber, (const char *) newCentroVaccinaleRequest->healthCardNumber, HEALTH_CARD_NUMBER_LENGTH);
     //    newServerV_Reply->healthCardNumber[HEALTH_CARD_NUMBER_LENGTH - 1] = '\0';
     newServerV_Reply->requestResult = FALSE;
@@ -128,7 +124,7 @@ void * centroVaccinaleRequestHandler (void * args) {
         free(tempCopiedDate);
         free(newCentroVaccinaleRequest);
         free(newServerV_Reply);
-        free(threadConnectionFileDescriptor);
+        free(args);
         pthread_mutex_unlock(& fileSystemAccessMutex);
         threadRaiseError(FOPEN_SCOPE, FOPEN_ERROR);
     }
@@ -173,7 +169,7 @@ void * centroVaccinaleRequestHandler (void * args) {
             free(tempCopiedDate);
             free(newCentroVaccinaleRequest);
             free(newServerV_Reply);
-            free(threadConnectionFileDescriptor);
+            free(args);
             pthread_mutex_unlock(& fileSystemAccessMutex);
             threadRaiseError(FOPEN_SCOPE, FOPEN_ERROR);
         }
@@ -187,7 +183,7 @@ void * centroVaccinaleRequestHandler (void * args) {
                     free(tempCopiedDate);
                     free(newCentroVaccinaleRequest);
                     free(newServerV_Reply);
-                    free(threadConnectionFileDescriptor);
+                    free(args);
                     pthread_mutex_unlock(& fileSystemAccessMutex);
                     threadRaiseError(FPRINTF_SCOPE, FPRINTF_ERROR);
                 }
@@ -200,7 +196,7 @@ void * centroVaccinaleRequestHandler (void * args) {
             free(tempCopiedDate);
             free(newCentroVaccinaleRequest);
             free(newServerV_Reply);
-            free(threadConnectionFileDescriptor);
+            free(args);
             pthread_mutex_unlock(& fileSystemAccessMutex);
             threadRaiseError(FPRINTF_SCOPE, FPRINTF_ERROR);
         }
@@ -214,7 +210,7 @@ void * centroVaccinaleRequestHandler (void * args) {
             free(tempCopiedDate);
             free(newCentroVaccinaleRequest);
             free(newServerV_Reply);
-            free(threadConnectionFileDescriptor);
+            free(args);
             pthread_mutex_unlock(& fileSystemAccessMutex);
             threadRaiseError(REMOVE_SCOPE, REMOVE_ERROR);
         }
@@ -225,7 +221,7 @@ void * centroVaccinaleRequestHandler (void * args) {
             free(tempCopiedDate);
             free(newCentroVaccinaleRequest);
             free(newServerV_Reply);
-            free(threadConnectionFileDescriptor);
+            free(args);
             pthread_mutex_unlock(& fileSystemAccessMutex);
             threadRaiseError(RENAME_SCOPE, RENAME_ERROR);
         }
@@ -236,7 +232,7 @@ void * centroVaccinaleRequestHandler (void * args) {
             free(tempCopiedDate);
             free(newCentroVaccinaleRequest);
             free(newServerV_Reply);
-            free(threadConnectionFileDescriptor);
+            free(args);
             pthread_mutex_unlock(& fileSystemAccessMutex);
             threadRaiseError(FOPEN_SCOPE, FOPEN_ERROR);
             fclose(tempFilePointer);
@@ -244,13 +240,13 @@ void * centroVaccinaleRequestHandler (void * args) {
         
     }
     
-    if ((fullWriteReturnValue = fullWrite(* threadConnectionFileDescriptor, (const void *) newServerV_Reply, (size_t) sizeof(serverV_ReplyToCentroVaccinale))) != 0) {
+    if ((fullWriteReturnValue = fullWrite(threadConnectionFileDescriptor, (const void *) newServerV_Reply, (size_t) sizeof(serverV_ReplyToCentroVaccinale))) != 0) {
         fclose(originalFilePointer);
         fclose(tempFilePointer);
         free(tempCopiedDate);
         free(newCentroVaccinaleRequest);
         free(newServerV_Reply);
-        free(threadConnectionFileDescriptor);
+        free(args);
         pthread_mutex_unlock(& fileSystemAccessMutex);
         threadRaiseError(FULL_WRITE_SCOPE, (int) fullWriteReturnValue);
     }
@@ -261,7 +257,7 @@ void * centroVaccinaleRequestHandler (void * args) {
     free(tempCopiedDate);
     free(newCentroVaccinaleRequest);
     free(newServerV_Reply);
-    free(threadConnectionFileDescriptor);
+    free(args);
     pthread_exit(NULL);
 }
 
@@ -277,7 +273,9 @@ void updateFile(FILE * originalFilePointer, FILE * tempFilePointer) {
 }
 
 void * clientS_viaServerG_RequestHandler(void * args) {
-    int * threadConnectionFileDescriptor = (int *) args;
+    pthread_mutex_lock(& connectionFileDescriptorMutex);
+    int threadConnectionFileDescriptor = * ((int *) args);
+    pthread_mutex_unlock(& connectionFileDescriptorMutex);
     ssize_t fullWriteReturnValue, fullReadReturnValue, getLineBytes;
     size_t effectiveLineLength = 0;
     char * singleLine = NULL, * vaccineExpirationDateString, * nowDateString;
@@ -288,25 +286,24 @@ void * clientS_viaServerG_RequestHandler(void * args) {
     unsigned short int greenPassStatus;
     enum boolean isGreenPassExpired = TRUE, healthCardNumberWasFound = FALSE, isGreenPassValid = FALSE;
     FILE * originalFilePointer;
-    
     char healthCardNumber[HEALTH_CARD_NUMBER_LENGTH];
     serverV_ReplyToServerG_clientS * newServerV_Reply = (serverV_ReplyToServerG_clientS *) calloc(1, sizeof(serverV_ReplyToServerG_clientS));
     if (!newServerV_Reply) {
-        free(threadConnectionFileDescriptor);
+        free(args);
         threadRaiseError(CALLOC_SCOPE, CALLOC_ERROR);
     }
     
     vaccineExpirationDateString = (char *) calloc(DATE_LENGTH, sizeof(char));
     if (!vaccineExpirationDateString) {
         free(newServerV_Reply);
-        free(threadConnectionFileDescriptor);
+        free(args);
         threadRaiseError(CALLOC_SCOPE, CALLOC_ERROR);
     }
     
-    if ((fullReadReturnValue = fullRead(* threadConnectionFileDescriptor, (void *) healthCardNumber, (size_t) HEALTH_CARD_NUMBER_LENGTH * sizeof(char))) != 0) {
+    if ((fullReadReturnValue = fullRead(threadConnectionFileDescriptor, (void *) healthCardNumber, (size_t) HEALTH_CARD_NUMBER_LENGTH * sizeof(char))) != 0) {
         free(vaccineExpirationDateString);
         free(newServerV_Reply);
-        free(threadConnectionFileDescriptor);
+        free(args);
         threadRaiseError(FULL_READ_SCOPE, (int) fullReadReturnValue);
     }
     
@@ -318,7 +315,7 @@ void * clientS_viaServerG_RequestHandler(void * args) {
         fclose(originalFilePointer);
         free(vaccineExpirationDateString);
         free(newServerV_Reply);
-        free(threadConnectionFileDescriptor);
+        free(args);
         pthread_mutex_unlock(& fileSystemAccessMutex);
         threadRaiseError(FOPEN_SCOPE, FOPEN_ERROR);
     }
@@ -357,11 +354,11 @@ void * clientS_viaServerG_RequestHandler(void * args) {
         if (isGreenPassValid && !isGreenPassExpired) newServerV_Reply->requestResult = TRUE;
     }
     
-    if ((fullWriteReturnValue = fullWrite(* threadConnectionFileDescriptor, (const void *) newServerV_Reply, (size_t) sizeof(serverV_ReplyToServerG_clientS))) != 0) {
+    if ((fullWriteReturnValue = fullWrite(threadConnectionFileDescriptor, (const void *) newServerV_Reply, (size_t) sizeof(serverV_ReplyToServerG_clientS))) != 0) {
         fclose(originalFilePointer);
         free(vaccineExpirationDateString);
         free(newServerV_Reply);
-        free(threadConnectionFileDescriptor);
+        free(args);
         pthread_mutex_unlock(& fileSystemAccessMutex);
         threadRaiseError(FULL_WRITE_SCOPE, (int) fullWriteReturnValue);
     }
@@ -369,13 +366,15 @@ void * clientS_viaServerG_RequestHandler(void * args) {
     fclose(originalFilePointer);
     free(vaccineExpirationDateString);
     free(newServerV_Reply);
-    free(threadConnectionFileDescriptor);
+    free(args);
     pthread_mutex_unlock(& fileSystemAccessMutex);
     pthread_exit(NULL);
 }
 
 void * clientT_viaServerG_RequestHandler(void * args) {
-    int * threadConnectionFileDescriptor = (int *) args;
+    pthread_mutex_lock(& connectionFileDescriptorMutex);
+    int threadConnectionFileDescriptor = * ((int *) args);
+    pthread_mutex_unlock(& connectionFileDescriptorMutex);
     ssize_t fullWriteReturnValue, fullReadReturnValue, getLineBytes;
     size_t effectiveLineLength = 0;
     char * singleLine = NULL, * vaccineExpirationDateString;
@@ -385,14 +384,14 @@ void * clientT_viaServerG_RequestHandler(void * args) {
     char healthCardNumber[HEALTH_CARD_NUMBER_LENGTH];
     serverG_RequestToServerV_onBehalfOfClientT * newServerG_Request = (serverG_RequestToServerV_onBehalfOfClientT *) calloc(1, sizeof(serverG_RequestToServerV_onBehalfOfClientT));
     if (!newServerG_Request) {
-        free(threadConnectionFileDescriptor);
+        free(args);
         threadRaiseError(CALLOC_SCOPE, CALLOC_ERROR);
     }
     
     serverV_ReplyToServerG_clientT * newServerV_Reply = (serverV_ReplyToServerG_clientT *) calloc(1, sizeof(serverV_ReplyToServerG_clientT));
     if (!newServerV_Reply) {
         free(newServerG_Request);
-        free(threadConnectionFileDescriptor);
+        free(args);
         threadRaiseError(CALLOC_SCOPE, CALLOC_ERROR);
     }
     
@@ -400,15 +399,15 @@ void * clientT_viaServerG_RequestHandler(void * args) {
     if (!vaccineExpirationDateString) {
         free(newServerG_Request);
         free(newServerV_Reply);
-        free(threadConnectionFileDescriptor);
+        free(args);
         threadRaiseError(CALLOC_SCOPE, CALLOC_ERROR);
     }
     
-    if ((fullReadReturnValue = fullRead(* threadConnectionFileDescriptor, (void *) newServerG_Request, (size_t) sizeof(serverG_RequestToServerV_onBehalfOfClientT))) != 0) {
+    if ((fullReadReturnValue = fullRead(threadConnectionFileDescriptor, (void *) newServerG_Request, (size_t) sizeof(serverG_RequestToServerV_onBehalfOfClientT))) != 0) {
         free(vaccineExpirationDateString);
         free(newServerV_Reply);
         free(newServerG_Request);
-        free(threadConnectionFileDescriptor);
+        free(args);
         threadRaiseError(FULL_READ_SCOPE, (int) fullReadReturnValue);
     }
     
@@ -422,7 +421,7 @@ void * clientT_viaServerG_RequestHandler(void * args) {
         free(vaccineExpirationDateString);
         free(newServerV_Reply);
         free(newServerG_Request);
-        free(threadConnectionFileDescriptor);
+        free(args);
         pthread_mutex_unlock(& fileSystemAccessMutex);
         threadRaiseError(FOPEN_SCOPE, FOPEN_ERROR);
     }
@@ -444,9 +443,9 @@ void * clientT_viaServerG_RequestHandler(void * args) {
             fclose(originalFilePointer);
             fclose(tempFilePointer);
             free(vaccineExpirationDateString);
-            free(threadConnectionFileDescriptor);
+            free(args);
             free(newServerV_Reply);
-            free(threadConnectionFileDescriptor);
+            free(newServerG_Request);
             pthread_mutex_unlock(& fileSystemAccessMutex);
             threadRaiseError(FOPEN_SCOPE, FOPEN_ERROR);
         }
@@ -458,9 +457,9 @@ void * clientT_viaServerG_RequestHandler(void * args) {
                     fclose(originalFilePointer);
                     fclose(tempFilePointer);
                     free(vaccineExpirationDateString);
-                    free(threadConnectionFileDescriptor);
+                    free(args);
                     free(newServerV_Reply);
-                    free(threadConnectionFileDescriptor);
+                    free(newServerG_Request);
                     pthread_mutex_unlock(& fileSystemAccessMutex);
                     threadRaiseError(FPRINTF_SCOPE, FPRINTF_ERROR);
                 }
@@ -473,7 +472,7 @@ void * clientT_viaServerG_RequestHandler(void * args) {
             free(vaccineExpirationDateString);
             free(newServerV_Reply);
             free(newServerG_Request);
-            free(threadConnectionFileDescriptor);
+            free(args);
             pthread_mutex_unlock(& fileSystemAccessMutex);
             threadRaiseError(FPRINTF_SCOPE, FPRINTF_ERROR);
         }
@@ -487,7 +486,7 @@ void * clientT_viaServerG_RequestHandler(void * args) {
             free(vaccineExpirationDateString);
             free(newServerG_Request);
             free(newServerV_Reply);
-            free(threadConnectionFileDescriptor);
+            free(args);
             pthread_mutex_unlock(& fileSystemAccessMutex);
             threadRaiseError(REMOVE_SCOPE, REMOVE_ERROR);
         }
@@ -498,7 +497,7 @@ void * clientT_viaServerG_RequestHandler(void * args) {
             free(vaccineExpirationDateString);
             free(newServerG_Request);
             free(newServerV_Reply);
-            free(threadConnectionFileDescriptor);
+            free(args);
             pthread_mutex_unlock(& fileSystemAccessMutex);
             threadRaiseError(RENAME_SCOPE, RENAME_ERROR);
         }
@@ -510,14 +509,14 @@ void * clientT_viaServerG_RequestHandler(void * args) {
             free(vaccineExpirationDateString);
             free(newServerG_Request);
             free(newServerV_Reply);
-            free(threadConnectionFileDescriptor);
+            free(args);
             pthread_mutex_unlock(& fileSystemAccessMutex);
             threadRaiseError(FOPEN_SCOPE, FOPEN_ERROR);
         }
         newServerV_Reply->updateResult = TRUE;
     }
     
-    if ((fullWriteReturnValue = fullWrite(* threadConnectionFileDescriptor, (const void *) newServerV_Reply, (size_t) sizeof(serverV_ReplyToServerG_clientT))) != 0) raiseError(FULL_WRITE_SCOPE, (int) fullWriteReturnValue);
+    if ((fullWriteReturnValue = fullWrite(threadConnectionFileDescriptor, (const void *) newServerV_Reply, (size_t) sizeof(serverV_ReplyToServerG_clientT))) != 0) raiseError(FULL_WRITE_SCOPE, (int) fullWriteReturnValue);
     
     fclose(originalFilePointer);
     fclose(tempFilePointer);
@@ -525,6 +524,6 @@ void * clientT_viaServerG_RequestHandler(void * args) {
     free(vaccineExpirationDateString);
     free(newServerV_Reply);
     free(newServerG_Request);
-    free(threadConnectionFileDescriptor);
+    free(args);
     pthread_exit(NULL);
 }

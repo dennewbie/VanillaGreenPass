@@ -10,6 +10,7 @@
 // TODO: improve memory handling (date, stringhe getline, etc in tutti i file)
 // TODO: Refactoring completo codice (manca serverV)
 // DONE: createConnectionWithServerV(...) can return an int and not an int *
+// TODO: wclose serverV dei singoli ThreadConnectionDescriptor
 
 // CHECKED
 #include "centroVaccinale.h"

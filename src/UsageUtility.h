@@ -77,16 +77,22 @@
 #define PTHREAD_MUTEX_INIT_ERROR 13
 #define PTHREAD_MUTEX_INIT_SCOPE "pthread_mutex_init"
 
-#define REMOVE_ERROR 14
+#define PTHREAD_MUTEX_ATTR_INIT_ERROR 14
+#define PTHREAD_MUTEX_ATTR_INIT_SCOPE "pthread_mutex_attr_init"
+
+#define PTHREAD_ATTR_DETACH_STATE_ERROR 15
+#define PTHREAD_ATTR_DETACH_STATE_SCOPE "pthread_attr_setdetachstate"
+
+#define REMOVE_ERROR 16
 #define REMOVE_SCOPE "remove"
 
-#define RENAME_ERROR 15
+#define RENAME_ERROR 17
 #define RENAME_SCOPE "rename"
 
-#define DUP_ERROR 16
+#define DUP_ERROR 18
 #define DUP_SCOPE "dup"
 
-#define STRTOUL_ERROR 17
+#define STRTOUL_ERROR 19
 #define STRTOUL_SCOPE "strtoul"
 
 #define max(x, y) ( { typeof (x) x_ = (x); typeof (y) y_ = (y); x_ > y_ ? x_ : y_; } )
