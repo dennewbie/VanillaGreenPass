@@ -80,10 +80,10 @@ enum sender {
     clientT_viaServerG_Sender
 };
 
-void checkHealtCardNumber           (char * healthCardNumber);
-void retrieveConfigurationData      (const char * configFilePath, char ** configurationIP, unsigned short int * configurationPort);
-char * getVaccineExpirationDate     (void);
-char * getNowDate                   (void);
-int createConnectionWithServerV     (const char * configFilePath);
+void checkHealtCardNumber           (char * healthCardNumber                                                                            );
+void retrieveConfigurationData      (const char * configFilePath, char ** configurationIP, unsigned short int * configurationPort       );
+char * getVaccineExpirationDate     (void                                                                                               );
+char * getNowDate                   (void                                                                                               );
+int createConnectionWithServerV     (const char * configFilePath                                                                        );
 
 #endif /* GreenPassUtility_h */
