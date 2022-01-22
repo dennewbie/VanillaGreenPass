@@ -11,7 +11,7 @@
 int main (int argc, char * argv[]) {
     int serverV_SocketFileDescriptor, listenFileDescriptor, connectionFileDescriptor, enable = TRUE;
     struct sockaddr_in client, serverG_Address;
-    unsigned short int serverG_Port;
+    unsigned short int serverG_Port, requestIdentifier;
     pid_t childPid;
     
     checkUsage(argc, (const char **) argv, SERVER_G_ARGS_NO, expectedUsageMessage);
@@ -31,11 +31,10 @@ int main (int argc, char * argv[]) {
     wlisten(listenFileDescriptor, LISTEN_QUEUE_SIZE * LISTEN_QUEUE_SIZE);
     
     while (TRUE) {
-        unsigned short int requestIdentifier;
         ssize_t fullReadReturnValue;
         socklen_t clientAddressLength = (socklen_t) sizeof(client);
         connectionFileDescriptor = waccept(listenFileDescriptor, (struct sockaddr *) & client, (socklen_t *) & clientAddressLength);
-        if ((fullReadReturnValue = fullRead(connectionFileDescriptor, (void *) & requestIdentifier, sizeof(unsigned short int))) != 0) raiseError(FULL_READ_SCOPE, (int) fullReadReturnValue);
+        if ((fullReadReturnValue = fullRead(connectionFileDescriptor, (void *) & requestIdentifier, sizeof(requestIdentifier))) != 0) raiseError(FULL_READ_SCOPE, (int) fullReadReturnValue);
         
         if ((childPid = fork()) == -1) {
             raiseError(FORK_SCOPE, FORK_ERROR);

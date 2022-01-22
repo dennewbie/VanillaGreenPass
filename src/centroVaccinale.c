@@ -11,6 +11,7 @@
 // TODO: Refactoring completo codice (manca serverV)
 // DONE: createConnectionWithServerV(...) can return an int and not an int *
 // TODO: wclose serverV dei singoli ThreadConnectionDescriptor
+// TODO: read e write cambiare sizeof(struct usata)
 
 // CHECKED
 #include "centroVaccinale.h"

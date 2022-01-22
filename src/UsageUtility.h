@@ -35,6 +35,7 @@
 
 #include <ctype.h>
 #include <pthread.h>
+#include <stdarg.h> 
 
 
 
@@ -83,17 +84,29 @@
 #define PTHREAD_ATTR_DETACH_STATE_ERROR 15
 #define PTHREAD_ATTR_DETACH_STATE_SCOPE "pthread_attr_setdetachstate"
 
-#define REMOVE_ERROR 16
+#define PTHREAD_MUTEX_LOCK_ERROR 16
+#define PTHREAD_MUTEX_LOCK_SCOPE "pthread_mutex_lock"
+
+#define PTHREAD_MUTEX_UNLOCK_ERROR 17
+#define PTHREAD_MUTEX_UNLOCK_SCOPE "pthread_mutex_unlock"
+
+#define PTHREAD_MUTEX_ATTR_DESTROY_ERROR 18
+#define PTHREAD_MUTEX_ATTR_DESTROY_SCOPE "pthread_mutex_attr_destroy"
+
+#define REMOVE_ERROR 19
 #define REMOVE_SCOPE "remove"
 
-#define RENAME_ERROR 17
+#define RENAME_ERROR 20
 #define RENAME_SCOPE "rename"
 
-#define DUP_ERROR 18
+#define DUP_ERROR 21
 #define DUP_SCOPE "dup"
 
-#define STRTOUL_ERROR 19
+#define STRTOUL_ERROR 22
 #define STRTOUL_SCOPE "strtoul"
+
+#define STRTOL_ERROR 23
+#define STRTOL_SCOPE "strtol"
 
 #define max(x, y) ( { typeof (x) x_ = (x); typeof (y) y_ = (y); x_ > y_ ? x_ : y_; } )
 
