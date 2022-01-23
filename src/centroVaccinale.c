@@ -5,6 +5,8 @@
 //  Created by Denny Caruso on 08/01/22.
 //
 
+// TODO: fix da fare su UNIX aulainfo che riporta l'errore "double free or corruption (out) Annullato (core dump creato)"
+
 #include "centroVaccinale.h"
 
 int main (int argc, char * argv[]) {
