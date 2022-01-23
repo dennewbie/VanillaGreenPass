@@ -51,6 +51,7 @@ int main (int argc, char * argv[]) {
 }
 
 void clientCitizenRequestHandler (int connectionFileDescriptor, int serverV_SocketFileDescriptor) {
+    char * vaccineExpirationDate;
     centroVaccinaleReplyToClientCitizen * newCentroVaccinaleReply = (centroVaccinaleReplyToClientCitizen *) calloc(1, sizeof(centroVaccinaleReplyToClientCitizen));
     centroVaccinaleRequestToServerV * newCentroVaccinaleRequest = (centroVaccinaleRequestToServerV *) calloc(1, sizeof(centroVaccinaleRequestToServerV));
     serverV_ReplyToCentroVaccinale * newServerV_Reply = (serverV_ReplyToCentroVaccinale *) calloc(1, sizeof(serverV_ReplyToCentroVaccinale));
@@ -64,7 +65,8 @@ void clientCitizenRequestHandler (int connectionFileDescriptor, int serverV_Sock
     
     if ((fullReadReturnValue = fullRead(connectionFileDescriptor, (void *) buffer, (size_t) HEALTH_CARD_NUMBER_LENGTH * sizeof(char))) != 0) raiseError(FULL_READ_SCOPE, (int) fullReadReturnValue);
     strncpy((char *) newCentroVaccinaleRequest->healthCardNumber, (const char *)  buffer, HEALTH_CARD_NUMBER_LENGTH);
-    strncpy((char *) newCentroVaccinaleRequest->greenPassExpirationDate, (const char *) getVaccineExpirationDate(), DATE_LENGTH);
+    vaccineExpirationDate = getVaccineExpirationDate();
+    strncpy((char *) newCentroVaccinaleRequest->greenPassExpirationDate, (const char *) vaccineExpirationDate, DATE_LENGTH);
     
     if ((fullWriteReturnValue = fullWrite(serverV_SocketFileDescriptor, (const void *) & centroVaccinaleSenderID, sizeof(centroVaccinaleSenderID))) != 0) raiseError(FULL_WRITE_SCOPE, (int) fullWriteReturnValue);
     if ((fullWriteReturnValue = fullWrite(serverV_SocketFileDescriptor, (const void *) newCentroVaccinaleRequest, sizeof(* newCentroVaccinaleRequest))) != 0) raiseError(FULL_WRITE_SCOPE, (int) fullWriteReturnValue);
@@ -78,6 +80,7 @@ void clientCitizenRequestHandler (int connectionFileDescriptor, int serverV_Sock
     free(newCentroVaccinaleReply);
     free(newCentroVaccinaleRequest);
     free(newServerV_Reply);
+    free(vaccineExpirationDate);
     wclose(connectionFileDescriptor);
     wclose(serverV_SocketFileDescriptor);
 }

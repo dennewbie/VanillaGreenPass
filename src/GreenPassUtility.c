@@ -21,13 +21,15 @@ void retrieveConfigurationData (const char * configFilePath, char ** configurati
     filePointer = fopen(configFilePath, "r");
     if (!filePointer) raiseError(FOPEN_SCOPE, FOPEN_ERROR);
     if ((getLineBytes = getline((char ** restrict) & tempStringConfigurationIP, (size_t * restrict) & IPlength, (FILE * restrict) filePointer)) == -1) raiseError(GETLINE_SCOPE, GETLINE_ERROR);
-    * configurationIP = (char *) calloc(strlen(tempStringConfigurationIP) - 1, sizeof(char));
+    * configurationIP = (char *) calloc(strlen(tempStringConfigurationIP), sizeof(char));
     if (! *configurationIP) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
     strncpy(* configurationIP, (const char *) tempStringConfigurationIP, strlen(tempStringConfigurationIP) - 1);
     checkIP(* configurationIP);
     if ((getLineBytes = getline((char ** restrict) & stringServerAddressPort, (size_t * restrict) & portLength, (FILE * restrict) filePointer)) == -1) raiseError(GETLINE_SCOPE, GETLINE_ERROR);
     * configurationPort = (unsigned short int) strtoul((const char * restrict) stringServerAddressPort, (char ** restrict) NULL, 10);
     if (configurationPort == 0 && (errno == EINVAL || errno == ERANGE)) raiseError(STRTOUL_SCOPE, STRTOUL_ERROR);
+    free(tempStringConfigurationIP);
+    free(stringServerAddressPort);
     fclose(filePointer);
 }
 
