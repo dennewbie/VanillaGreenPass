@@ -12,4 +12,5 @@
 
 ### Tool Esterni Utilizzati
 - [Valgrind](https://valgrind.org/)
+- [StarUML](https://staruml.io/)
 
