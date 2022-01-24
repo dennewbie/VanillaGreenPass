@@ -107,8 +107,6 @@
 #define STRTOL_ERROR 23
 #define STRTOL_SCOPE "strtol"
 
-#define max(x, y) ( { typeof (x) x_ = (x); typeof (y) y_ = (y); x_ > y_ ? x_ : y_; } )
-
 
 
 enum boolean        { FALSE, TRUE };

@@ -46,7 +46,6 @@
 
 
 
-void    raiseError          (char * errorScope,         int exitCode                                                            );
 int     wsocket             (int domain,                int type,                           int protocol                        );
 void    wconnect            (int socketFileDescriptor,  const struct sockaddr * address,    socklen_t addressLength             );
 void    wclose              (int socketFileDescriptor                                                                           );
