@@ -57,7 +57,7 @@ char * getNowDate (void) {
     char * nowDate = (char *) calloc(DATE_LENGTH, sizeof(char));
     if (!nowDate) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
     
-    sprintf(nowDate, "%02d-%02d-%d\n", nowDateTimeInfo->tm_mday, nowDateTimeInfo->tm_mon + 1, nowDateTimeInfo->tm_year + 1900);
+    sprintf(nowDate, "%02d-%02d-%d", nowDateTimeInfo->tm_mday, nowDateTimeInfo->tm_mon + 1, nowDateTimeInfo->tm_year + 1900);
     nowDate[DATE_LENGTH - 1] = '\0';
     return nowDate;
 }
