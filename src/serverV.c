@@ -19,7 +19,7 @@ int main (int argc, char * argv[]) {
     if (serverV_Port == 0 && (errno == EINVAL || errno == ERANGE)) raiseError(STRTOUL_SCOPE, STRTOUL_ERROR);
     
     listenFileDescriptor = wsocket(AF_INET, SOCK_STREAM, 0);
-    if (setsockopt(listenFileDescriptor, SOL_SOCKET, SO_REUSEADDR, & enable, (socklen_t) sizeof(int))  == -1) raiseError(SET_SOCK_OPT_SCOPE, SET_SOCK_OPT_ERROR);
+    if (setsockopt(listenFileDescriptor, SOL_SOCKET, SO_REUSEADDR, & enable, (socklen_t) sizeof(enable))  == -1) raiseError(SET_SOCK_OPT_SCOPE, SET_SOCK_OPT_ERROR);
     memset((void *) & serverV_Address, 0, sizeof(serverV_Address));
     memset((void *) & client, 0, sizeof(client));
     serverV_Address.sin_family      = AF_INET;
@@ -40,7 +40,7 @@ int main (int argc, char * argv[]) {
         if ((fullReadReturnValue = fullRead(connectionFileDescriptor, (void *) & requestIdentifier, sizeof(requestIdentifier))) != 0) raiseError(FULL_READ_SCOPE, (int) fullReadReturnValue);
         
         if (pthread_mutex_lock(& connectionFileDescriptorMutex) != 0) raiseError(PTHREAD_MUTEX_LOCK_SCOPE, PTHREAD_MUTEX_LOCK_ERROR);
-        int * threadConnectionFileDescriptor = (int *) calloc(1, sizeof(int));
+        int * threadConnectionFileDescriptor = (int *) calloc(1, sizeof(* threadConnectionFileDescriptor));
         if (!threadConnectionFileDescriptor) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
         if ((* threadConnectionFileDescriptor = dup(connectionFileDescriptor)) < 0) raiseError(DUP_SCOPE, DUP_ERROR);
         if (pthread_mutex_unlock(& connectionFileDescriptorMutex) != 0)  raiseError(PTHREAD_MUTEX_UNLOCK_SCOPE, PTHREAD_MUTEX_UNLOCK_ERROR);
@@ -81,10 +81,10 @@ void * centroVaccinaleRequestHandler (void * args) {
     enum boolean isVaccineBlocked = FALSE, healthCardNumberWasFound = FALSE;
     FILE * originalFilePointer, * tempFilePointer;
     
-    centroVaccinaleRequestToServerV * newCentroVaccinaleRequest = (centroVaccinaleRequestToServerV *) calloc(1, sizeof(centroVaccinaleRequestToServerV));
+    centroVaccinaleRequestToServerV * newCentroVaccinaleRequest = (centroVaccinaleRequestToServerV *) calloc(1, sizeof(* newCentroVaccinaleRequest));
     if (!newCentroVaccinaleRequest) threadAbort(CALLOC_SCOPE, CALLOC_ERROR, threadConnectionFileDescriptor, args);
     
-    serverV_ReplyToCentroVaccinale * newServerV_Reply = (serverV_ReplyToCentroVaccinale *) calloc(1, sizeof(serverV_ReplyToCentroVaccinale));
+    serverV_ReplyToCentroVaccinale * newServerV_Reply = (serverV_ReplyToCentroVaccinale *) calloc(1, sizeof(* newServerV_Reply));
     if (!newServerV_Reply) threadAbort(CALLOC_SCOPE, CALLOC_ERROR, threadConnectionFileDescriptor, args, newCentroVaccinaleRequest);
     
     if ((fullReadReturnValue = fullRead(threadConnectionFileDescriptor, (void *) newCentroVaccinaleRequest, sizeof(* newCentroVaccinaleRequest))) != 0) threadAbort(FULL_READ_SCOPE, (int) fullReadReturnValue, threadConnectionFileDescriptor, args, newCentroVaccinaleRequest, newServerV_Reply);
@@ -105,8 +105,8 @@ void * centroVaccinaleRequestHandler (void * args) {
             healthCardNumberWasFound = TRUE;
             strncpy((char *) dateCopiedFromFile, (const char *) singleLine + HEALTH_CARD_NUMBER_LENGTH, DATE_LENGTH - 1);
             dateCopiedFromFile[DATE_LENGTH - 1] = '\0';
-            memset(& firstTime, 0, sizeof(struct tm));
-            memset(& secondTime, 0, sizeof(struct tm));
+            memset(& firstTime, 0, sizeof(firstTime));
+            memset(& secondTime, 0, sizeof(secondTime));
             
             firstTime.tm_mday = (int) strtol((const char * restrict) & dateCopiedFromFile[0], (char ** restrict) NULL, 10);
             firstTime.tm_mon = ((int) strtol((const char * restrict) & dateCopiedFromFile[3], (char ** restrict) NULL, 10) - 1);
@@ -227,7 +227,7 @@ void * clientS_viaServerG_RequestHandler(void * args) {
     FILE * originalFilePointer;
     char healthCardNumber[HEALTH_CARD_NUMBER_LENGTH], dateCopiedFromFile[DATE_LENGTH], greenPassStatusString[2];
 
-    serverV_ReplyToServerG_clientS * newServerV_Reply = (serverV_ReplyToServerG_clientS *) calloc(1, sizeof(serverV_ReplyToServerG_clientS));
+    serverV_ReplyToServerG_clientS * newServerV_Reply = (serverV_ReplyToServerG_clientS *) calloc(1, sizeof(* newServerV_Reply));
     if (!newServerV_Reply) threadAbort(CALLOC_SCOPE, CALLOC_ERROR, threadConnectionFileDescriptor, args);
 
     if ((fullReadReturnValue = fullRead(threadConnectionFileDescriptor, (void *) healthCardNumber, (size_t) HEALTH_CARD_NUMBER_LENGTH * sizeof(char))) != 0) threadAbort(FULL_READ_SCOPE, (int) fullReadReturnValue, threadConnectionFileDescriptor, args, newServerV_Reply);
@@ -247,8 +247,8 @@ void * clientS_viaServerG_RequestHandler(void * args) {
             healthCardNumberWasFound = TRUE;
             strncpy((char *) dateCopiedFromFile, (const char *) singleLine + HEALTH_CARD_NUMBER_LENGTH, DATE_LENGTH - 1);
             dateCopiedFromFile[DATE_LENGTH - 1] = '\0';
-            memset(& firstTime, 0, sizeof(struct tm));
-            memset(& secondTime, 0, sizeof(struct tm));
+            memset(& firstTime, 0, sizeof(firstTime));
+            memset(& secondTime, 0, sizeof(secondTime));
 
             firstTime.tm_mday = (int) strtol((const char * restrict) & dateCopiedFromFile[0], (char ** restrict) NULL, 10);
             firstTime.tm_mon = ((int) strtol((const char * restrict) & dateCopiedFromFile[3], (char ** restrict) NULL, 10) - 1);
@@ -290,13 +290,13 @@ void * clientS_viaServerG_RequestHandler(void * args) {
         if (pthread_mutex_unlock(& fileSystemAccessMutex) != 0) threadAbort(PTHREAD_MUTEX_UNLOCK_SCOPE, PTHREAD_MUTEX_UNLOCK_ERROR, threadConnectionFileDescriptor, args, newServerV_Reply, nowDateString, singleLine);
 
         if (isGreenPassValid && !isGreenPassExpired) newServerV_Reply->requestResult = TRUE;
-        if ((fullWriteReturnValue = fullWrite(threadConnectionFileDescriptor, (const void *) newServerV_Reply, sizeof(serverV_ReplyToServerG_clientS))) != 0) threadAbort(FULL_WRITE_SCOPE, (int) fullWriteReturnValue, threadConnectionFileDescriptor, args, newServerV_Reply, nowDateString, singleLine);
+        if ((fullWriteReturnValue = fullWrite(threadConnectionFileDescriptor, (const void *) newServerV_Reply, sizeof(* newServerV_Reply))) != 0) threadAbort(FULL_WRITE_SCOPE, (int) fullWriteReturnValue, threadConnectionFileDescriptor, args, newServerV_Reply, nowDateString, singleLine);
         free(nowDateString);
         free(singleLine);
     } else {
         if (pthread_mutex_unlock(& fileSystemAccessMutex) != 0) threadAbort(PTHREAD_MUTEX_UNLOCK_SCOPE, PTHREAD_MUTEX_UNLOCK_ERROR, threadConnectionFileDescriptor, args, newServerV_Reply);
         
-        if ((fullWriteReturnValue = fullWrite(threadConnectionFileDescriptor, (const void *) newServerV_Reply, sizeof(serverV_ReplyToServerG_clientS))) != 0) threadAbort(FULL_WRITE_SCOPE, (int) fullWriteReturnValue, threadConnectionFileDescriptor, args, newServerV_Reply);
+        if ((fullWriteReturnValue = fullWrite(threadConnectionFileDescriptor, (const void *) newServerV_Reply, sizeof(* newServerV_Reply))) != 0) threadAbort(FULL_WRITE_SCOPE, (int) fullWriteReturnValue, threadConnectionFileDescriptor, args, newServerV_Reply);
     }
 
     free(newServerV_Reply);
@@ -316,10 +316,10 @@ void * clientT_viaServerG_RequestHandler(void * args) {
     FILE * originalFilePointer, * tempFilePointer = NULL;
     char healthCardNumber[HEALTH_CARD_NUMBER_LENGTH], dateCopiedFromFile[DATE_LENGTH];
 
-    serverG_RequestToServerV_onBehalfOfClientT * newServerG_Request = (serverG_RequestToServerV_onBehalfOfClientT *) calloc(1, sizeof(serverG_RequestToServerV_onBehalfOfClientT));
+    serverG_RequestToServerV_onBehalfOfClientT * newServerG_Request = (serverG_RequestToServerV_onBehalfOfClientT *) calloc(1, sizeof(* newServerG_Request));
     if (!newServerG_Request) threadAbort(CALLOC_SCOPE, CALLOC_ERROR, threadConnectionFileDescriptor, args);
 
-    serverV_ReplyToServerG_clientT * newServerV_Reply = (serverV_ReplyToServerG_clientT *) calloc(1, sizeof(serverV_ReplyToServerG_clientT));
+    serverV_ReplyToServerG_clientT * newServerV_Reply = (serverV_ReplyToServerG_clientT *) calloc(1, sizeof(* newServerV_Reply));
     if (!newServerV_Reply) threadAbort(CALLOC_SCOPE, CALLOC_ERROR, threadConnectionFileDescriptor, args, newServerG_Request);
 
     if ((fullReadReturnValue = fullRead(threadConnectionFileDescriptor, (void *) newServerG_Request, sizeof(* newServerG_Request))) != 0) {
@@ -399,7 +399,7 @@ void * clientT_viaServerG_RequestHandler(void * args) {
         free(singleLine);
     }
 
-    if ((fullWriteReturnValue = fullWrite(threadConnectionFileDescriptor, (const void *) newServerV_Reply, sizeof(serverV_ReplyToServerG_clientT))) != 0) {
+    if ((fullWriteReturnValue = fullWrite(threadConnectionFileDescriptor, (const void *) newServerV_Reply, sizeof(* newServerV_Reply))) != 0) {
         if (pthread_mutex_unlock(& fileSystemAccessMutex) != 0) threadAbort(PTHREAD_MUTEX_UNLOCK_SCOPE, PTHREAD_MUTEX_UNLOCK_ERROR, threadConnectionFileDescriptor, args, newServerG_Request, newServerV_Reply);
         threadAbort(FULL_WRITE_SCOPE, (int) fullWriteReturnValue, threadConnectionFileDescriptor, args, newServerG_Request, newServerV_Reply);
     }

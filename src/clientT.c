@@ -50,8 +50,8 @@ int setupClientT (int argc, char * argv[], char ** healthCardNumber, int * newGr
 void updateGreenPass (int serverG_SocketFileDescriptor, const void * healthCardNumber, const unsigned short int newGreenPassStatus) {
     ssize_t fullWriteReturnValue, fullReadReturnValue;
     unsigned short int clientT_SenderID = clientT_viaServerG_Sender;
-    serverG_ReplyToClientT * newServerG_Reply = (serverG_ReplyToClientT *) calloc(1, sizeof(serverG_ReplyToClientT));
-    clientT_RequestToServerG * newClientT_Request = (clientT_RequestToServerG *) calloc(1, sizeof(clientT_RequestToServerG));
+    serverG_ReplyToClientT * newServerG_Reply = (serverG_ReplyToClientT *) calloc(1, sizeof(* newServerG_Reply));
+    clientT_RequestToServerG * newClientT_Request = (clientT_RequestToServerG *) calloc(1, sizeof(* newClientT_Request));
     if (!newServerG_Reply) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
     if (!newClientT_Request) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
     

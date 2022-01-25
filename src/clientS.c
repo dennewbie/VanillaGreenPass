@@ -45,7 +45,7 @@ int setupClientS (int argc, char * argv[], char ** healthCardNumber) {
 void checkGreenPass (int serverG_SocketFileDescriptor, const void * healthCardNumber, size_t nBytes) {
     ssize_t fullWriteReturnValue, fullReadReturnValue;
     unsigned short int clientS_SenderID = clientS_viaServerG_Sender;
-    serverG_ReplyToClientS * newServerG_Reply = (serverG_ReplyToClientS *) calloc(1, sizeof(serverG_ReplyToClientS));
+    serverG_ReplyToClientS * newServerG_Reply = (serverG_ReplyToClientS *) calloc(1, sizeof(* newServerG_Reply));
     if (!newServerG_Reply) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
     
     if (fprintf(stdout, "\n... Verifica in corso ...\n") < 0) raiseError(FPRINTF_SCOPE, FPRINTF_ERROR);

@@ -19,7 +19,7 @@ int main (int argc, char * argv[]) {
     
     // si imposta la comunicazione col clientS e clientT
     listenFileDescriptor = wsocket(AF_INET, SOCK_STREAM, 0);
-    if (setsockopt(listenFileDescriptor, SOL_SOCKET, SO_REUSEADDR, & enable, (socklen_t) sizeof(int)) == -1) raiseError(SET_SOCK_OPT_SCOPE, SET_SOCK_OPT_ERROR);
+    if (setsockopt(listenFileDescriptor, SOL_SOCKET, SO_REUSEADDR, & enable, (socklen_t) sizeof(enable)) == -1) raiseError(SET_SOCK_OPT_SCOPE, SET_SOCK_OPT_ERROR);
     memset((void *) & serverG_Address, 0, sizeof(serverG_Address));
     memset((void *) & client, 0, sizeof(client));
     
@@ -69,8 +69,8 @@ void clientS_RequestHandler (int connectionFileDescriptor, int serverV_SocketFil
     char healthCardNumber[HEALTH_CARD_NUMBER_LENGTH];
     ssize_t fullWriteReturnValue, fullReadReturnValue;
     unsigned short int clientS_viaServerG_SenderID = clientS_viaServerG_Sender;
-    serverG_ReplyToClientS * newServerG_Reply = (serverG_ReplyToClientS *) calloc(1, sizeof(serverG_ReplyToClientS));
-    serverV_ReplyToServerG_clientS * newServerV_Reply = (serverV_ReplyToServerG_clientS *) calloc(1, sizeof(serverV_ReplyToServerG_clientS));
+    serverG_ReplyToClientS * newServerG_Reply = (serverG_ReplyToClientS *) calloc(1, sizeof(* newServerG_Reply));
+    serverV_ReplyToServerG_clientS * newServerV_Reply = (serverV_ReplyToServerG_clientS *) calloc(1, sizeof(* newServerV_Reply));
     if (!newServerG_Reply) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
     if (!newServerV_Reply) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
     
@@ -81,7 +81,7 @@ void clientS_RequestHandler (int connectionFileDescriptor, int serverV_SocketFil
     
     strncpy((char *) newServerG_Reply->healthCardNumber, (const char *) newServerV_Reply->healthCardNumber, HEALTH_CARD_NUMBER_LENGTH);
     newServerG_Reply->requestResult = newServerV_Reply->requestResult;
-    if ((fullWriteReturnValue = fullWrite(connectionFileDescriptor, (const void *) newServerG_Reply, sizeof(serverG_ReplyToClientS))) != 0) raiseError(FULL_WRITE_SCOPE, (int) fullWriteReturnValue);
+    if ((fullWriteReturnValue = fullWrite(connectionFileDescriptor, (const void *) newServerG_Reply, sizeof(* newServerG_Reply))) != 0) raiseError(FULL_WRITE_SCOPE, (int) fullWriteReturnValue);
     free(newServerV_Reply);
     free(newServerG_Reply);
 }
@@ -89,10 +89,10 @@ void clientS_RequestHandler (int connectionFileDescriptor, int serverV_SocketFil
 void clientT_RequestHandler (int connectionFileDescriptor, int serverV_SocketFileDescriptor) {
     unsigned short int clientT_viaServerG_SenderID = clientT_viaServerG_Sender;
     ssize_t fullWriteReturnValue, fullReadReturnValue;
-    clientT_RequestToServerG * newClientT_Request = (clientT_RequestToServerG *) calloc(1, sizeof(clientT_RequestToServerG));
-    serverG_ReplyToClientT * newServerG_Reply = (serverG_ReplyToClientT *) calloc(1, sizeof(serverG_ReplyToClientT));
-    serverG_RequestToServerV_onBehalfOfClientT * newServerG_Request = (serverG_RequestToServerV_onBehalfOfClientT *) calloc(1, sizeof(serverG_RequestToServerV_onBehalfOfClientT));
-    serverV_ReplyToServerG_clientT * newServerV_Reply = (serverV_ReplyToServerG_clientT *) calloc(1, sizeof(serverV_ReplyToServerG_clientT));
+    clientT_RequestToServerG * newClientT_Request = (clientT_RequestToServerG *) calloc(1, sizeof(* newClientT_Request));
+    serverG_ReplyToClientT * newServerG_Reply = (serverG_ReplyToClientT *) calloc(1, sizeof(* newServerG_Reply));
+    serverG_RequestToServerV_onBehalfOfClientT * newServerG_Request = (serverG_RequestToServerV_onBehalfOfClientT *) calloc(1, sizeof(* newServerG_Request));
+    serverV_ReplyToServerG_clientT * newServerV_Reply = (serverV_ReplyToServerG_clientT *) calloc(1, sizeof(* newServerV_Reply));
     if (!newServerG_Reply) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
     if (!newServerV_Reply) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
     if (!newClientT_Request) raiseError(CALLOC_SCOPE, CALLOC_ERROR);

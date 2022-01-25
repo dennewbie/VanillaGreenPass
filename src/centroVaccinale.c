@@ -5,8 +5,6 @@
 //  Created by Denny Caruso on 08/01/22.
 //
 
-// TODO: fix da fare su UNIX aulainfo che riporta l'errore "double free or corruption (out) Annullato (core dump creato)"
-
 #include "centroVaccinale.h"
 
 int main (int argc, char * argv[]) {
@@ -21,7 +19,7 @@ int main (int argc, char * argv[]) {
     
     // si imposta la comunicazione col clientCitizen
     listenFileDescriptor = wsocket(AF_INET, SOCK_STREAM, 0);
-    if (setsockopt(listenFileDescriptor, SOL_SOCKET, SO_REUSEADDR, & enable, (socklen_t) sizeof(int))  == -1) raiseError(SET_SOCK_OPT_SCOPE, SET_SOCK_OPT_ERROR);
+    if (setsockopt(listenFileDescriptor, SOL_SOCKET, SO_REUSEADDR, & enable, (socklen_t) sizeof(enable))  == -1) raiseError(SET_SOCK_OPT_SCOPE, SET_SOCK_OPT_ERROR);
     memset((void *) & centroVaccinaleAddress, 0, sizeof(centroVaccinaleAddress));
     memset((void *) & client, 0, sizeof(client));
     
