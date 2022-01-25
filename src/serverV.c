@@ -52,9 +52,9 @@ int main (int argc, char * argv[]) {
             case clientS_viaServerG_Sender:
                 if ((threadCreationReturnValue = pthread_create(& singleTID, & attr, & clientS_viaServerG_RequestHandler, threadConnectionFileDescriptor)) != 0) raiseError(PTHREAD_CREATE_SCOPE, PTHREAD_CREATE_ERROR);
                 break;
-//            case clientT_viaServerG_Sender:
-//                if ((threadCreationReturnValue = pthread_create(& singleTID, & attr, & clientT_viaServerG_RequestHandler, threadConnectionFileDescriptor)) != 0) raiseError(PTHREAD_CREATE_SCOPE, PTHREAD_CREATE_ERROR);
-//                break;
+            case clientT_viaServerG_Sender:
+                if ((threadCreationReturnValue = pthread_create(& singleTID, & attr, & clientT_viaServerG_RequestHandler, threadConnectionFileDescriptor)) != 0) raiseError(PTHREAD_CREATE_SCOPE, PTHREAD_CREATE_ERROR);
+                break;
             default:
                 raiseError(INVALID_SENDER_ID_SCOPE, INVALID_SENDER_ID_ERROR);
                 break;
@@ -305,114 +305,112 @@ void * clientS_viaServerG_RequestHandler(void * args) {
     pthread_exit(NULL);
 }
 
-//void * clientT_viaServerG_RequestHandler(void * args) {
-//    if (pthread_mutex_lock(& connectionFileDescriptorMutex) != 0) threadRaiseError(PTHREAD_MUTEX_LOCK_SCOPE, PTHREAD_MUTEX_LOCK_ERROR);
-//    int threadConnectionFileDescriptor = * ((int *) args);
-//    if (pthread_mutex_unlock(& connectionFileDescriptorMutex) != 0) threadRaiseError(PTHREAD_MUTEX_UNLOCK_SCOPE, PTHREAD_MUTEX_UNLOCK_ERROR);
-//    ssize_t fullWriteReturnValue, fullReadReturnValue, getLineBytes;
-//    size_t effectiveLineLength = 0;
-//    char * singleLine = NULL;;
-//    enum boolean healthCardNumberWasFound = FALSE;
-//    FILE * originalFilePointer, * tempFilePointer = NULL;
-//    char healthCardNumber[HEALTH_CARD_NUMBER_LENGTH], dateCopiedFromFile[DATE_LENGTH];
-//
-//    serverG_RequestToServerV_onBehalfOfClientT * newServerG_Request = (serverG_RequestToServerV_onBehalfOfClientT *) calloc(1, sizeof(serverG_RequestToServerV_onBehalfOfClientT));
-//    if (!newServerG_Request) threadAbort(CALLOC_SCOPE, CALLOC_ERROR, threadConnectionFileDescriptor, args);
-//
-//    serverV_ReplyToServerG_clientT * newServerV_Reply = (serverV_ReplyToServerG_clientT *) calloc(1, sizeof(serverV_ReplyToServerG_clientT));
-//    if (!newServerV_Reply) threadAbort(CALLOC_SCOPE, CALLOC_ERROR, threadConnectionFileDescriptor, args, newServerG_Request);
-//
-//    if ((fullReadReturnValue = fullRead(threadConnectionFileDescriptor, (void *) newServerG_Request, sizeof(* newServerG_Request))) != 0) {
-//        threadAbort(FULL_READ_SCOPE, (int) fullReadReturnValue, threadConnectionFileDescriptor, args, newServerG_Request, newServerV_Reply);
-//    }
-//
-//    strncpy((char *) healthCardNumber, (const char *) newServerG_Request->healthCardNumber, HEALTH_CARD_NUMBER_LENGTH);
-//    strncpy((char *) newServerV_Reply->healthCardNumber, (const char *) healthCardNumber, HEALTH_CARD_NUMBER_LENGTH);
-//    newServerV_Reply->updateResult = FALSE;
-//
-//    if (pthread_mutex_lock(& fileSystemAccessMutex) != 0) threadAbort(PTHREAD_MUTEX_LOCK_SCOPE, PTHREAD_MUTEX_LOCK_ERROR, threadConnectionFileDescriptor, args, newServerG_Request, newServerV_Reply);
-//    originalFilePointer = fopen(dataPath, "r");
-//    if (!originalFilePointer) {
-//        if (pthread_mutex_unlock(& fileSystemAccessMutex) != 0) threadAbort(PTHREAD_MUTEX_UNLOCK_SCOPE, PTHREAD_MUTEX_UNLOCK_ERROR, threadConnectionFileDescriptor, args, newServerV_Reply);
-//        threadAbort(FOPEN_SCOPE, FOPEN_ERROR, threadConnectionFileDescriptor, args, newServerG_Request, newServerV_Reply);
-//    }
-//
-//    while ((getLineBytes = getline(& singleLine, & effectiveLineLength, originalFilePointer)) != -1) {
-//        if ((strncmp((const char *) newServerV_Reply->healthCardNumber, (const char *) singleLine, HEALTH_CARD_NUMBER_LENGTH - 1)) == 0) {
-//            healthCardNumberWasFound = TRUE;
-//            strncpy((char *) dateCopiedFromFile, (const char *) singleLine + HEALTH_CARD_NUMBER_LENGTH, DATE_LENGTH - 1);
-//            dateCopiedFromFile[DATE_LENGTH - 1] = '\0';
-//            break;
-//        }
-//    }
-//
-//    if (healthCardNumberWasFound) {
-//        fclose(originalFilePointer);
-//        originalFilePointer = fopen(dataPath, "r");
-//        tempFilePointer = fopen(tempDataPath, "w");
-//        if (!originalFilePointer || !tempFilePointer) {
-//            fclose(originalFilePointer);
-//            fclose(tempFilePointer);
-//            if (pthread_mutex_unlock(& fileSystemAccessMutex) != 0) threadAbort(PTHREAD_MUTEX_UNLOCK_SCOPE, PTHREAD_MUTEX_UNLOCK_ERROR, threadConnectionFileDescriptor, args, newServerG_Request, newServerV_Reply);
-//            threadAbort(FOPEN_SCOPE, FOPEN_ERROR, threadConnectionFileDescriptor, args, newServerG_Request, newServerV_Reply);
-//        }
-//
-//        // salvo nel file serverV.dat il nuovo stato del green pass
-//        while ((getLineBytes = getline(& singleLine, & effectiveLineLength, originalFilePointer)) != -1) {
-//            if ((strncmp(newServerV_Reply->healthCardNumber, singleLine, HEALTH_CARD_NUMBER_LENGTH - 1)) != 0) {
-//                if (fprintf(tempFilePointer, "%s", singleLine) < 0) {
-//                    fclose(originalFilePointer);
-//                    fclose(tempFilePointer);
-//                    if (pthread_mutex_unlock(& fileSystemAccessMutex) != 0) threadAbort(PTHREAD_MUTEX_UNLOCK_SCOPE, PTHREAD_MUTEX_UNLOCK_ERROR, threadConnectionFileDescriptor, args, newServerG_Request, newServerV_Reply);
-//                    threadAbort(FPRINTF_SCOPE, FPRINTF_ERROR, threadConnectionFileDescriptor, args, newServerG_Request, newServerV_Reply);
-//                }
-//            }
-//        }
-//
-//        if (fprintf(tempFilePointer, "%s:%s:%hu\n", newServerV_Reply->healthCardNumber, dateCopiedFromFile, newServerG_Request->updateValue) < 0) {
-//            fclose(originalFilePointer);
-//            fclose(tempFilePointer);
-//            if (pthread_mutex_unlock(& fileSystemAccessMutex) != 0) threadAbort(PTHREAD_MUTEX_UNLOCK_SCOPE, PTHREAD_MUTEX_UNLOCK_ERROR, threadConnectionFileDescriptor, args, newServerG_Request, newServerV_Reply);
-//            threadAbort(FPRINTF_SCOPE, FPRINTF_ERROR, threadConnectionFileDescriptor, args, newServerG_Request, newServerV_Reply);
-//        }
-//
-//        // updateFile
-//        fclose(originalFilePointer);
-//        fclose(tempFilePointer);
-//        if (remove(dataPath) != 0) {
-//            if (pthread_mutex_unlock(& fileSystemAccessMutex) != 0) threadAbort(PTHREAD_MUTEX_UNLOCK_SCOPE, PTHREAD_MUTEX_UNLOCK_ERROR, threadConnectionFileDescriptor, args, newServerG_Request, newServerV_Reply);
-//            threadAbort(REMOVE_SCOPE, REMOVE_ERROR, threadConnectionFileDescriptor, args, newServerG_Request, newServerV_Reply);
-//        }
-//
-//        if (rename(tempDataPath, dataPath) != 0) {
-//            if (pthread_mutex_unlock(& fileSystemAccessMutex) != 0) threadAbort(PTHREAD_MUTEX_UNLOCK_SCOPE, PTHREAD_MUTEX_UNLOCK_ERROR, threadConnectionFileDescriptor, args, newServerG_Request, newServerV_Reply);
-//            threadAbort(RENAME_SCOPE, RENAME_ERROR, threadConnectionFileDescriptor, args, newServerG_Request, newServerV_Reply);
-//        }
-//
-//        tempFilePointer = fopen(tempDataPath, "w+");
-//        if (!tempFilePointer) {
-//            if (pthread_mutex_unlock(& fileSystemAccessMutex) != 0) threadAbort(PTHREAD_MUTEX_UNLOCK_SCOPE, PTHREAD_MUTEX_UNLOCK_ERROR, threadConnectionFileDescriptor, args, newServerG_Request, newServerV_Reply);
-//            threadAbort(FOPEN_SCOPE, FOPEN_ERROR, threadConnectionFileDescriptor, args, newServerG_Request, newServerV_Reply);
-//        }
-//        fclose(tempFilePointer);
-//        newServerV_Reply->updateResult = TRUE;
-//    }
-//
-//    if ((fullWriteReturnValue = fullWrite(threadConnectionFileDescriptor, (const void *) newServerV_Reply, sizeof(serverV_ReplyToServerG_clientT))) != 0) { fclose(originalFilePointer);
-//        fclose(tempFilePointer);
-//        if (pthread_mutex_unlock(& fileSystemAccessMutex) != 0) threadAbort(PTHREAD_MUTEX_UNLOCK_SCOPE, PTHREAD_MUTEX_UNLOCK_ERROR, threadConnectionFileDescriptor, args, newServerG_Request, newServerV_Reply);
-//        threadAbort(FULL_WRITE_SCOPE, (int) fullWriteReturnValue, threadConnectionFileDescriptor, args, newServerG_Request, newServerV_Reply);
-//    }
-//
-//    fclose(originalFilePointer);
-//    fclose(tempFilePointer);
-//    if (pthread_mutex_unlock(& fileSystemAccessMutex) != 0) threadAbort(PTHREAD_MUTEX_UNLOCK_SCOPE, PTHREAD_MUTEX_UNLOCK_ERROR, threadConnectionFileDescriptor, args, newServerG_Request, newServerV_Reply);
-//    wclose(threadConnectionFileDescriptor);
-//    free(newServerV_Reply);
-//    free(newServerG_Request);
-//    free(args);
-//    pthread_exit(NULL);
-//}
+void * clientT_viaServerG_RequestHandler(void * args) {
+    if (pthread_mutex_lock(& connectionFileDescriptorMutex) != 0) threadRaiseError(PTHREAD_MUTEX_LOCK_SCOPE, PTHREAD_MUTEX_LOCK_ERROR);
+    int threadConnectionFileDescriptor = * ((int *) args);
+    if (pthread_mutex_unlock(& connectionFileDescriptorMutex) != 0) threadRaiseError(PTHREAD_MUTEX_UNLOCK_SCOPE, PTHREAD_MUTEX_UNLOCK_ERROR);
+    ssize_t fullWriteReturnValue, fullReadReturnValue, getLineBytes;
+    size_t effectiveLineLength = 0;
+    char * singleLine = NULL;;
+    enum boolean healthCardNumberWasFound = FALSE;
+    FILE * originalFilePointer, * tempFilePointer = NULL;
+    char healthCardNumber[HEALTH_CARD_NUMBER_LENGTH], dateCopiedFromFile[DATE_LENGTH];
+
+    serverG_RequestToServerV_onBehalfOfClientT * newServerG_Request = (serverG_RequestToServerV_onBehalfOfClientT *) calloc(1, sizeof(serverG_RequestToServerV_onBehalfOfClientT));
+    if (!newServerG_Request) threadAbort(CALLOC_SCOPE, CALLOC_ERROR, threadConnectionFileDescriptor, args);
+
+    serverV_ReplyToServerG_clientT * newServerV_Reply = (serverV_ReplyToServerG_clientT *) calloc(1, sizeof(serverV_ReplyToServerG_clientT));
+    if (!newServerV_Reply) threadAbort(CALLOC_SCOPE, CALLOC_ERROR, threadConnectionFileDescriptor, args, newServerG_Request);
+
+    if ((fullReadReturnValue = fullRead(threadConnectionFileDescriptor, (void *) newServerG_Request, sizeof(* newServerG_Request))) != 0) {
+        threadAbort(FULL_READ_SCOPE, (int) fullReadReturnValue, threadConnectionFileDescriptor, args, newServerG_Request, newServerV_Reply);
+    }
+
+    strncpy((char *) healthCardNumber, (const char *) newServerG_Request->healthCardNumber, HEALTH_CARD_NUMBER_LENGTH);
+    strncpy((char *) newServerV_Reply->healthCardNumber, (const char *) healthCardNumber, HEALTH_CARD_NUMBER_LENGTH);
+    newServerV_Reply->updateResult = FALSE;
+
+    if (pthread_mutex_lock(& fileSystemAccessMutex) != 0) threadAbort(PTHREAD_MUTEX_LOCK_SCOPE, PTHREAD_MUTEX_LOCK_ERROR, threadConnectionFileDescriptor, args, newServerG_Request, newServerV_Reply);
+    originalFilePointer = fopen(dataPath, "r");
+    if (!originalFilePointer) {
+        if (pthread_mutex_unlock(& fileSystemAccessMutex) != 0) threadAbort(PTHREAD_MUTEX_UNLOCK_SCOPE, PTHREAD_MUTEX_UNLOCK_ERROR, threadConnectionFileDescriptor, args, newServerV_Reply);
+        threadAbort(FOPEN_SCOPE, FOPEN_ERROR, threadConnectionFileDescriptor, args, newServerG_Request, newServerV_Reply);
+    }
+
+    while ((getLineBytes = getline(& singleLine, & effectiveLineLength, originalFilePointer)) != -1) {
+        if ((strncmp((const char *) newServerV_Reply->healthCardNumber, (const char *) singleLine, HEALTH_CARD_NUMBER_LENGTH - 1)) == 0) {
+            healthCardNumberWasFound = TRUE;
+            strncpy((char *) dateCopiedFromFile, (const char *) singleLine + HEALTH_CARD_NUMBER_LENGTH, DATE_LENGTH - 1);
+            dateCopiedFromFile[DATE_LENGTH - 1] = '\0';
+            break;
+        }
+    }
+
+    fclose(originalFilePointer);
+    if (healthCardNumberWasFound) {
+        originalFilePointer = fopen(dataPath, "r");
+        tempFilePointer = fopen(tempDataPath, "w");
+        if (!originalFilePointer || !tempFilePointer) {
+            fclose(originalFilePointer);
+            fclose(tempFilePointer);
+            if (pthread_mutex_unlock(& fileSystemAccessMutex) != 0) threadAbort(PTHREAD_MUTEX_UNLOCK_SCOPE, PTHREAD_MUTEX_UNLOCK_ERROR, threadConnectionFileDescriptor, args, newServerG_Request, newServerV_Reply, singleLine);
+            threadAbort(FOPEN_SCOPE, FOPEN_ERROR, threadConnectionFileDescriptor, args, newServerG_Request, newServerV_Reply, singleLine);
+        }
+
+        // salvo nel file serverV.dat il nuovo stato del green pass
+        while ((getLineBytes = getline(& singleLine, & effectiveLineLength, originalFilePointer)) != -1) {
+            if ((strncmp(newServerV_Reply->healthCardNumber, singleLine, HEALTH_CARD_NUMBER_LENGTH - 1)) != 0) {
+                if (fprintf(tempFilePointer, "%s", singleLine) < 0) {
+                    fclose(originalFilePointer);
+                    fclose(tempFilePointer);
+                    if (pthread_mutex_unlock(& fileSystemAccessMutex) != 0) threadAbort(PTHREAD_MUTEX_UNLOCK_SCOPE, PTHREAD_MUTEX_UNLOCK_ERROR, threadConnectionFileDescriptor, args, newServerG_Request, newServerV_Reply, singleLine);
+                    threadAbort(FPRINTF_SCOPE, FPRINTF_ERROR, threadConnectionFileDescriptor, args, newServerG_Request, newServerV_Reply, singleLine);
+                }
+            }
+        }
+
+        if (fprintf(tempFilePointer, "%s:%s:%hu\n", newServerV_Reply->healthCardNumber, dateCopiedFromFile, newServerG_Request->updateValue) < 0) {
+            fclose(originalFilePointer);
+            fclose(tempFilePointer);
+            if (pthread_mutex_unlock(& fileSystemAccessMutex) != 0) threadAbort(PTHREAD_MUTEX_UNLOCK_SCOPE, PTHREAD_MUTEX_UNLOCK_ERROR, threadConnectionFileDescriptor, args, newServerG_Request, newServerV_Reply, singleLine);
+            threadAbort(FPRINTF_SCOPE, FPRINTF_ERROR, threadConnectionFileDescriptor, args, newServerG_Request, newServerV_Reply, singleLine);
+        }
+
+        // updateFile
+        fclose(originalFilePointer);
+        fclose(tempFilePointer);
+        if (remove(dataPath) != 0) {
+            if (pthread_mutex_unlock(& fileSystemAccessMutex) != 0) threadAbort(PTHREAD_MUTEX_UNLOCK_SCOPE, PTHREAD_MUTEX_UNLOCK_ERROR, threadConnectionFileDescriptor, args, newServerG_Request, newServerV_Reply, singleLine);
+            threadAbort(REMOVE_SCOPE, REMOVE_ERROR, threadConnectionFileDescriptor, args, newServerG_Request, newServerV_Reply, singleLine);
+        }
+
+        if (rename(tempDataPath, dataPath) != 0) {
+            if (pthread_mutex_unlock(& fileSystemAccessMutex) != 0) threadAbort(PTHREAD_MUTEX_UNLOCK_SCOPE, PTHREAD_MUTEX_UNLOCK_ERROR, threadConnectionFileDescriptor, args, newServerG_Request, newServerV_Reply, singleLine);
+            threadAbort(RENAME_SCOPE, RENAME_ERROR, threadConnectionFileDescriptor, args, newServerG_Request, newServerV_Reply, singleLine);
+        }
+
+        tempFilePointer = fopen(tempDataPath, "w+");
+        if (!tempFilePointer) {
+            if (pthread_mutex_unlock(& fileSystemAccessMutex) != 0) threadAbort(PTHREAD_MUTEX_UNLOCK_SCOPE, PTHREAD_MUTEX_UNLOCK_ERROR, threadConnectionFileDescriptor, args, newServerG_Request, newServerV_Reply, singleLine);
+            threadAbort(FOPEN_SCOPE, FOPEN_ERROR, threadConnectionFileDescriptor, args, newServerG_Request, newServerV_Reply, singleLine);
+        }
+        fclose(tempFilePointer);
+        newServerV_Reply->updateResult = TRUE;
+        free(singleLine);
+    }
+
+    if ((fullWriteReturnValue = fullWrite(threadConnectionFileDescriptor, (const void *) newServerV_Reply, sizeof(serverV_ReplyToServerG_clientT))) != 0) {
+        if (pthread_mutex_unlock(& fileSystemAccessMutex) != 0) threadAbort(PTHREAD_MUTEX_UNLOCK_SCOPE, PTHREAD_MUTEX_UNLOCK_ERROR, threadConnectionFileDescriptor, args, newServerG_Request, newServerV_Reply);
+        threadAbort(FULL_WRITE_SCOPE, (int) fullWriteReturnValue, threadConnectionFileDescriptor, args, newServerG_Request, newServerV_Reply);
+    }
+
+    if (pthread_mutex_unlock(& fileSystemAccessMutex) != 0) threadAbort(PTHREAD_MUTEX_UNLOCK_SCOPE, PTHREAD_MUTEX_UNLOCK_ERROR, threadConnectionFileDescriptor, args, newServerG_Request, newServerV_Reply);
+    wclose(threadConnectionFileDescriptor);
+    free(newServerV_Reply);
+    free(newServerG_Request);
+    free(args);
+    pthread_exit(NULL);
+}
 
 void threadAbort (char * errorScope, int exitCode, int threadConnectionFileDescriptor, void * arg1, ...) {
     wclose(threadConnectionFileDescriptor);
