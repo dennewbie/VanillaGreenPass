@@ -95,7 +95,7 @@ void * centroVaccinaleRequestHandler (void * args) {
     originalFilePointer = fopen(dataPath, "r");
     tempFilePointer = fopen(tempDataPath, "w");
     if (!originalFilePointer || !tempFilePointer) {
-        if (pthread_mutex_unlock(& fileSystemAccessMutex) != 0) {} threadAbort(PTHREAD_MUTEX_UNLOCK_SCOPE, PTHREAD_MUTEX_UNLOCK_ERROR, threadConnectionFileDescriptor, args, newCentroVaccinaleRequest, newServerV_Reply);
+        if (pthread_mutex_unlock(& fileSystemAccessMutex) != 0) threadAbort(PTHREAD_MUTEX_UNLOCK_SCOPE, PTHREAD_MUTEX_UNLOCK_ERROR, threadConnectionFileDescriptor, args, newCentroVaccinaleRequest, newServerV_Reply);
         threadAbort(FOPEN_SCOPE, FOPEN_ERROR, threadConnectionFileDescriptor, args, newCentroVaccinaleRequest, newServerV_Reply);
     }
     
