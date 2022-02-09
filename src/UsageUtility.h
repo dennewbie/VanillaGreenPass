@@ -35,7 +35,8 @@
 
 #include <ctype.h>
 #include <pthread.h>
-#include <stdarg.h> 
+#include <stdarg.h>
+#include <signal.h>
 
 
 

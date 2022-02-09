@@ -28,6 +28,7 @@ int main (int argc, char * argv[]) {
     serverG_Address.sin_port        = htons(serverG_Port);
     wbind(listenFileDescriptor, (struct sockaddr *) & serverG_Address, (socklen_t) sizeof(serverG_Address));
     wlisten(listenFileDescriptor, LISTEN_QUEUE_SIZE * LISTEN_QUEUE_SIZE);
+    signal(SIGCHLD, SIG_IGN);
     
     while (TRUE) {
         ssize_t fullReadReturnValue;

@@ -28,6 +28,7 @@ int main (int argc, char * argv[]) {
     centroVaccinaleAddress.sin_port        = htons(centroVaccinalePort);
     wbind(listenFileDescriptor, (struct sockaddr *) & centroVaccinaleAddress, (socklen_t) sizeof(centroVaccinaleAddress));
     wlisten(listenFileDescriptor, LISTEN_QUEUE_SIZE);
+    signal(SIGCHLD, SIG_IGN);
     
     while (TRUE) {
         socklen_t clientAddressLength = (socklen_t) sizeof(client);
