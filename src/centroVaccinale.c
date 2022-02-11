@@ -32,7 +32,7 @@ int main (int argc, char * argv[]) {
     
     while (TRUE) {
         socklen_t clientAddressLength = (socklen_t) sizeof(client);
-        connectionFileDescriptor = waccept(listenFileDescriptor, (struct sockaddr *) & client, (socklen_t *) & clientAddressLength);
+        while ((connectionFileDescriptor = waccept(listenFileDescriptor, (struct sockaddr *) & client, (socklen_t *) & clientAddressLength)) < 0 && (errno == EINTR));
         if ((childPid = fork()) == -1) {
             raiseError(FORK_SCOPE, FORK_ERROR);
         } else if (childPid == 0) {
