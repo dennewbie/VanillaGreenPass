@@ -40,6 +40,7 @@ int setupClientT (int argc, char * argv[], char ** healthCardNumber, int * newGr
     if (* newGreenPassStatus == 0 && (errno == EINVAL || errno == ERANGE)) raiseError(STRTOUL_SCOPE, STRTOUL_ERROR);
     if (* newGreenPassStatus != TRUE && * newGreenPassStatus != FALSE) raiseError(INVALID_UPDATE_STATUS_SCOPE, INVALID_UPDATE_STATUS_ERROR);
     
+    
     /*
     Si alloca la giusta quantit‡ di memoria per "healthCardNumber" e si controlla che ciò sia stato fatto
     in maniera corretta.
@@ -71,8 +72,10 @@ void updateGreenPass (int serverG_SocketFileDescriptor, const void * healthCardN
     if (!newServerG_Reply) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
     if (!newClientT_Request) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
     
+    
     // Copia del codice della tessera sanitaria nel pacchetto di richiesta.
     strncpy(newClientT_Request->healthCardNumber, healthCardNumber, HEALTH_CARD_NUMBER_LENGTH);
+    
     
     /*
     Si associa il valore di aggiornamento al secondo parametro del pacchetto di richiesta per
@@ -88,6 +91,7 @@ void updateGreenPass (int serverG_SocketFileDescriptor, const void * healthCardN
     if ((fullWriteReturnValue = fullWrite(serverG_SocketFileDescriptor, (const void *) newClientT_Request, sizeof(* newClientT_Request))) != 0) raiseError(FULL_WRITE_SCOPE, (int) fullWriteReturnValue);
     // fullRead per aspettare e successivamente leggere la risposta da parte del ServerG.
     if ((fullReadReturnValue = fullRead(serverG_SocketFileDescriptor, (void *) newServerG_Reply, sizeof(* newServerG_Reply))) != 0) raiseError(FULL_READ_SCOPE, (int) fullReadReturnValue);
+    
     
     /*
     Si analizzerà il valore relativo all'esito dell'aggiornamento: se risulta

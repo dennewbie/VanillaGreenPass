@@ -16,18 +16,18 @@ void checkUsage (int argc, const char * argv[], int expected_argc, const char * 
 }
 
 /*
- Procedura per la gestione degli errori più comuni con la visualizzazione dello scope e conseguente
- terminazione del processo.
- */
+Procedura per la gestione degli errori più comuni con la visualizzazione dello scope e conseguente
+terminazione del processo.
+*/
 void raiseError (char * errorScope, int exitCode) {
     if (fprintf(stderr, (const char * restrict) "Scope: %s - Error #%d\n", errorScope, exitCode) < 0) raiseError(FPRINTF_SCOPE, FPRINTF_ERROR);
     exit(exitCode);
 }
 
 /*
- Procedura per la gestione degli errori più comuni con la visualizzazione dello scope e conseguente
- terminazione del thread.
- */
+Procedura per la gestione degli errori più comuni con la visualizzazione dello scope e conseguente
+terminazione del thread.
+*/
 void threadRaiseError (char * errorScope, int exitCode) {
     if (fprintf(stderr, (const char * restrict)  "Scope: %s - Error #%d\n", errorScope, exitCode) < 0) raiseError(FPRINTF_SCOPE, FPRINTF_ERROR);
     pthread_exit(NULL);

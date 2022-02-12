@@ -45,7 +45,7 @@ char * getVaccineExpirationDate (void) {
     // Si tronca tale data al primo giorno del mese
     expirationDateTimeInfo->tm_mday = 1;
     
-    // Si aggiungono 6 mesi e si verifica se è cambiato l'anno
+    // Si aggiungono almeno 5 mesi e si verifica se è cambiato l'anno
     if (expirationDateTimeInfo->tm_mon + MONTHS_TO_WAIT_FOR_NEXT_VACCINATION + 1 > 11) {
         expirationDateTimeInfo->tm_year += 1;
         expirationDateTimeInfo->tm_mon = (expirationDateTimeInfo->tm_mon + MONTHS_TO_WAIT_FOR_NEXT_VACCINATION + 1) % MONTHS_IN_A_YEAR;

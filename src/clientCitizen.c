@@ -9,6 +9,7 @@
 
 int main (int argc, char * argv[]) {
     char * healthCardNumber;
+    
     /*
     Si controlla, tramite la funzione seguente, il numero di argomenti passati via terminale e se il formato
     del codice ditessera sanitaria scelto dall'utente rispetta il formato previsto.
@@ -17,6 +18,8 @@ int main (int argc, char * argv[]) {
     */
     int centroVaccinaleSocketFileDescriptor = setupClientCitizen(argc, argv, & healthCardNumber);
     healthCardNumber[HEALTH_CARD_NUMBER_LENGTH - 1] = '\0';
+    
+    
     /*
     Si effettua la richiesta di vaccinazione e di ottenimento del Vanilla Green Pass.
     "getVaccination(...)" avrà come parametri di ingresso: "centroVaccinaleFileDescriptor",
@@ -39,12 +42,14 @@ int setupClientCitizen (int argc, char * argv[], char ** healthCardNumber) {
     // Si verifica che il codice di tessera sanitaria immesso sia del formato e della lunghezza giusta.
     checkHealtCardNumber(argv[1]);
     
+    
     /*
     Si alloca la giusta quantità di memoria per "healthCardNumber" e si controlla che ciò sia stato fatto
     in maniera corretta.
     */
     * healthCardNumber = (char *) calloc(HEALTH_CARD_NUMBER_LENGTH, sizeof(char));
     if (! * healthCardNumber) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
+    
     
     // Si copia il valore passato in ingresso al ClientCitizen nella stringa definita e allocata "healthCardNumber"
     strncpy(* healthCardNumber, (const char *) argv[1], HEALTH_CARD_NUMBER_LENGTH - 1);
@@ -75,6 +80,7 @@ void getVaccination (int centroVaccinaleSocketFileDescriptor, const void * healt
     
     // fullWrite per la scrittura e invio del codice della tessera sanitaria del cittadino al Centro Vaccinale.
     if ((fullWriteReturnValue = fullWrite(centroVaccinaleSocketFileDescriptor, healthCardNumber, nBytes)) != 0) raiseError(FULL_WRITE_SCOPE, (int) fullWriteReturnValue);
+    
     /*
     fullRead per ottenere e leggere la risposta da parte del CentroVaccinale. Tale risposta è caratterizzata da
     una serie di parametri: Codice Tessera Sanitaria, Data Scadenza Vanilla Green Pass ed esito della richiesta.

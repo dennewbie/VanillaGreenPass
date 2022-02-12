@@ -13,6 +13,8 @@ int main (int argc, char * argv[]) {
     // Setup preliminare della connessione da parte del ClientS con il ServerG.
     int serverG_SocketFileDescriptor = setupClientS(argc, argv, & healthCardNumber);
     healthCardNumber[HEALTH_CARD_NUMBER_LENGTH - 1] = '\0';
+    
+    
     /*
     Si richiama la funzione che permette di mandare la richeista di verifica di un eventuale Vanilla Green Pass
     associato. Essa avrà in ingresso: "serverG_SocketFileDescriptor", il codice della tessera sanitaria associata
@@ -75,6 +77,8 @@ void checkGreenPass (int serverG_SocketFileDescriptor, const void * healthCardNu
     if ((fullWriteReturnValue = fullWrite(serverG_SocketFileDescriptor, (const void *) & clientS_SenderID, sizeof(clientS_SenderID))) != 0) raiseError(FULL_WRITE_SCOPE, (int) fullWriteReturnValue);
     // fullWrite per la scrittura e invio del codice di tessera sanitaria del ClientS al ServerG.
     if ((fullWriteReturnValue = fullWrite(serverG_SocketFileDescriptor, healthCardNumber, nBytes)) != 0) raiseError(FULL_WRITE_SCOPE, (int) fullWriteReturnValue);
+    
+    
     /*
     fullRead per ottenere e leggere la risposta da parte del ServerG. Tale risposta è caratterizzata da una
     serie di parametri: Codice Tessera Sanitaria ed esito della verifica del Vanilla Green Pass associato
