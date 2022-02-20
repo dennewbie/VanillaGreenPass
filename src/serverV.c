@@ -222,7 +222,7 @@ void * centroVaccinaleRequestHandler (void * args) {
              Se il numero di mesi passati è minore del numero di mesi da aspettare per la successiva vaccinazione
              e il numero di mesi di differenza è maggiore di 0, è troppo presto per fare una nuova vaccinazione
              */
-            if (elapsedMonths <= MONTHS_TO_WAIT_FOR_NEXT_VACCINATION && elapsedMonths > 0) {
+            if (elapsedMonths <= (MONTHS_TO_WAIT_FOR_NEXT_VACCINATION + 1) && elapsedMonths > 0) {
                 // Si copia la data data copiata dal file "serverV.dat" nella risposta da mandare al "CentroVaccinale"
                 strncpy((char *) newServerV_Reply->greenPassExpirationDate, (const char *) dateCopiedFromFile, DATE_LENGTH);
                 isVaccineBlocked = TRUE;
@@ -411,7 +411,7 @@ void * clientS_viaServerG_RequestHandler(void * args) {
              Se il numero di mesi passati è minore del numero di mesi da aspettare per la successiva vaccinazione e
              il numero di mesi di differenza è maggiore di 0 il Vanilla Green Pass non è ancora scaduto.
              */
-            if (elapsedMonths <= MONTHS_TO_WAIT_FOR_NEXT_VACCINATION && elapsedMonths > 0) isGreenPassExpired = FALSE;
+            if (elapsedMonths <= (MONTHS_TO_WAIT_FOR_NEXT_VACCINATION + 1) && elapsedMonths > 0) isGreenPassExpired = FALSE;
             strncpy((char *) greenPassStatusString, (const char *) singleLine + HEALTH_CARD_NUMBER_LENGTH + DATE_LENGTH, 1);
             greenPassStatusString[1] = '\0';
             // Conversione dello stato del Green Pass da stringa a intero
